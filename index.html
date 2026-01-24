@@ -1,161 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Playlist Downloader</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Playlist Downloader Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#121212;
-  --surface:#1e1e1e;
-  --surface2:#242424;
-  --surfaceActive:#221a3d;
-  --text:#fff;
-  --sub:#b3b3b3;
-  --accent:#7C4DFF;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:'Varela Round',system-ui;
-  background:var(--bg);
-  color:var(--text);
-}
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px 20px 180px;
-}
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  flex-wrap:wrap;
-}
-.header-title{font-size:26px;font-weight:700}
-.header-sub{font-size:13px;color:var(--sub)}
-.quality-selector{
-  display:flex;
-  gap:8px;
-  background:var(--surface);
-  padding:6px;
-  border-radius:50px;
-}
-.quality-btn{
-  background:transparent;
-  color:var(--sub);
-  border:none;
-  border-radius:50px;
-  padding:8px 16px;
-  cursor:pointer;
-  font-weight:600;
-}
-.quality-btn.active{
-  background:var(--accent);
-  color:#000;
-}
-.list{
-  margin-top:16px;
-  display:flex;
-  flex-direction:column;
-  gap:1px;
-}
-.card{
-  background:var(--surface);
-  padding:12px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  cursor:pointer;
-  transition:.3s;
-}
-.card:hover{background:var(--surface2)}
-.card.playing{
-  background:var(--surfaceActive);
-  border:2px solid var(--accent);
-}
-.card img{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-}
+body{margin:0;background:#121212;color:#fff;font-family:'Varela Round'}
+.container{max-width:900px;margin:auto;padding:20px 20px 220px}
+.header{display:flex;justify-content:space-between;align-items:center}
+.list{margin-top:16px}
+.card{display:flex;align-items:center;gap:12px;padding:12px;background:#1e1e1e;margin-bottom:1px}
+.card.playing{background:#221a3d;border-left:4px solid #7c4dff}
+.card img{width:48px;height:48px;border-radius:50%}
 .card-info{flex:1}
 .title{font-size:14px;font-weight:600}
-.meta{font-size:12px;color:var(--sub)}
-.play-wrap{
-  width:42px;height:42px;
-  border-radius:50%;
-  background:var(--surface2);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.play-wrap.playing{background:var(--accent)}
-.play-wrap .material-icons{color:var(--accent)}
+.meta{font-size:12px;color:#aaa}
+.play-wrap,.dl-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a2a2a;cursor:pointer}
+.play-wrap.playing{background:#7c4dff}
+.material-icons{color:#7c4dff}
 .play-wrap.playing .material-icons{color:#000}
-.fab,.download-all{
-  position:fixed;
-  right:24px;
-  width:56px;height:56px;
-  border-radius:50%;
-  background:var(--accent);
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+
+.player-bar{
+position:fixed;bottom:0;left:0;right:0;
+background:#1e1e1e;padding:12px;
+display:flex;flex-direction:column;gap:8px
 }
-.fab{bottom:24px;font-size:28px}
-.download-all{bottom:92px;display:none}
-.sheet{
-  position:fixed;
-  left:0;right:0;bottom:-100%;
-  background:var(--surface);
-  padding:20px;
-  transition:.3s;
-}
-.sheet.open{bottom:0}
-.sheet input,.sheet button{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-bottom:12px;
-}
-.sheet input{background:var(--surface2);color:#fff}
-.sheet button{background:var(--accent);font-weight:600}
-.progress-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.progress-modal.show{display:flex}
-.progress-content{
-  background:var(--surface);
-  padding:30px;
-  border-radius:20px;
-  min-width:320px;
-  text-align:center;
-}
-.progress-bar-container{
-  background:var(--surface2);
-  height:8px;
-  border-radius:10px;
-  overflow:hidden;
-}
-.progress-bar{
-  height:100%;
-  background:linear-gradient(90deg,var(--accent),#b47dff);
-  width:0%;
-}
+.controls{display:flex;justify-content:center;gap:16px}
+.controls button{background:none;border:none;color:#7c4dff;font-size:26px;cursor:pointer}
+.seek{display:flex;align-items:center;gap:8px}
+.seek input{flex:1}
+.time{font-size:12px;color:#aaa}
 </style>
 </head>
 
@@ -163,106 +41,99 @@ body{
 
 <div class="container">
   <div class="header">
-    <div>
-      <div class="header-title">Playlist</div>
-      <div class="header-sub" id="trackCount">No playlist loaded</div>
-    </div>
-    <div class="quality-selector">
-      <button class="quality-btn" data-quality="96kbps">96</button>
-      <button class="quality-btn active" data-quality="160kbps">160</button>
-      <button class="quality-btn" data-quality="320kbps">320</button>
-    </div>
+    <h2>Playlist</h2>
+    <span id="trackCount">0 tracks</span>
   </div>
   <div class="list" id="tracks"></div>
 </div>
 
-<button class="download-all" id="downloadAll">
-  <span class="material-icons">download</span>
-</button>
-<button class="fab" id="fab">+</button>
-
-<div class="sheet" id="sheet">
-  <input id="playlistUrl" placeholder="Paste Spotify playlist URL">
-  <button id="loadBtn">Load</button>
-</div>
-
-<div class="progress-modal" id="progressModal">
-  <div class="progress-content">
-    <h3 id="progressTitle">Downloading Songs...</h3>
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div id="progressText">0 / 0</div>
+<div class="player-bar">
+  <div class="seek">
+    <span class="time" id="currentTime">0:00</span>
+    <input type="range" id="seekBar" min="0" max="100" value="0">
+    <span class="time" id="duration">0:00</span>
+  </div>
+  <div class="controls">
+    <button id="shuffle"><span class="material-icons">shuffle</span></button>
+    <button id="prev"><span class="material-icons">skip_previous</span></button>
+    <button id="playMain"><span class="material-icons">play_arrow</span></button>
+    <button id="next"><span class="material-icons">skip_next</span></button>
+    <button id="repeat"><span class="material-icons">repeat</span></button>
   </div>
 </div>
 
 <audio id="player"></audio>
 
 <script>
-const SPOTIFY_API = "https://spotify-api-6yog.vercel.app/api/scrape";
-const SAAVN_API = "https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
+const SPOTIFY_API="https://spotify-api-6yog.vercel.app/api/scrape";
+const SAAVN_API="https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
 
-const tracksDiv = document.getElementById("tracks");
-const trackCount = document.getElementById("trackCount");
-const player = document.getElementById("player");
-const downloadBtn = document.getElementById("downloadAll");
-const sheet = document.getElementById("sheet");
+const player=document.getElementById("player");
+const tracksDiv=document.getElementById("tracks");
+const seekBar=document.getElementById("seekBar");
+const curTime=document.getElementById("currentTime");
+const durTime=document.getElementById("duration");
+const playMain=document.getElementById("playMain");
 
-player.preload = "auto";
-player.crossOrigin = "anonymous";
+player.preload="auto";
+player.crossOrigin="anonymous";
 
-let selectedQuality = "160kbps";
-let currentCard = null;
-let currentSongKey = null;
-const saavnCache = {};
+let tracks=[];
+let saavnCache={};
+let currentIndex=-1;
+let shuffle=false;
+let repeat=0; // 0 off, 1 all, 2 one
 
-document.querySelectorAll(".quality-btn").forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll(".quality-btn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedQuality = btn.dataset.quality;
-  };
-});
+function format(t){
+  const m=Math.floor(t/60);
+  const s=Math.floor(t%60).toString().padStart(2,"0");
+  return `${m}:${s}`;
+}
 
-fab.onclick = ()=> sayOpen(true);
-function sayOpen(v){ sheet.classList.toggle("open",v); }
-
-function getPlaylistId(url){
-  try{ return new URL(url).pathname.split("/playlist/")[1]; }
-  catch{ return null; }
+async function loadPlaylist(url){
+  const id=new URL(url).pathname.split("/playlist/")[1];
+  const res=await fetch(`${SPOTIFY_API}?playlist=${id}`);
+  const data=await res.json();
+  tracks=data.tracks.filter(t=>t.title);
+  document.getElementById("trackCount").textContent=`${tracks.length} tracks`;
+  await Promise.all(tracks.map(t=>prefetchSaavn(`${t.title} ${t.artists}`)));
+  render();
 }
 
 async function prefetchSaavn(key){
-  try{
-    const res = await fetch(`${SAAVN_API}?query=${encodeURIComponent(key)}&limit=1`);
-    const json = await res.json();
-    const song = json?.data?.results?.[0];
-    if(!song) return;
-    let urls = song.downloadUrl || song.media_url || [];
-    if(typeof urls === "string"){
-      urls = [{quality:"320kbps",url:urls}];
-    }
-    saavnCache[key] = urls;
-  }catch(e){console.error(e);}
+  const r=await fetch(`${SAAVN_API}?query=${encodeURIComponent(key)}&limit=1`);
+  const j=await r.json();
+  let urls=j?.data?.results?.[0]?.downloadUrl||[];
+  if(typeof urls==="string") urls=[{quality:"320kbps",url:urls}];
+  saavnCache[key]=urls;
 }
 
-loadBtn.onclick = async ()=>{
-  const id = getPlaylistId(playlistUrl.value.trim());
-  if(!id) return;
-  sayOpen(false);
-  tracksDiv.innerHTML="";
-  const res = await fetch(`${SPOTIFY_API}?playlist=${id}`);
-  const data = await res.json();
-  const tracks = data.tracks.filter(t=>t.title);
-  trackCount.textContent = `${tracks.length} tracks`;
-  await Promise.all(tracks.map(t=>prefetchSaavn(`${t.title} ${t.artists}`)));
-  downloadBtn.style.display="flex";
+function playIndex(i){
+  if(i<0||i>=tracks.length) return;
+  currentIndex=i;
+  const key=`${tracks[i].title} ${tracks[i].artists}`;
+  const url=saavnCache[key]?.[0]?.url;
+  if(!url) return;
+  player.src=url;
+  player.play().catch(()=>{});
+  updateUI();
+}
 
-  tracks.forEach(t=>{
-    const key = `${t.title} ${t.artists}`;
-    const card = document.createElement("div");
+function updateUI(){
+  document.querySelectorAll(".card").forEach((c,i)=>{
+    c.classList.toggle("playing",i===currentIndex);
+    c.querySelector(".play-wrap .material-icons").textContent=
+      i===currentIndex && !player.paused?"pause":"play_arrow";
+  });
+  playMain.querySelector(".material-icons").textContent=
+    player.paused?"play_arrow":"pause";
+}
+
+function render(){
+  tracksDiv.innerHTML="";
+  tracks.forEach((t,i)=>{
+    const card=document.createElement("div");
     card.className="card";
-    card.dataset.key=key;
     card.innerHTML=`
       <img src="${t.image}">
       <div class="card-info">
@@ -270,55 +141,56 @@ loadBtn.onclick = async ()=>{
         <div class="meta">${t.artists}</div>
       </div>
       <div class="play-wrap"><span class="material-icons">play_arrow</span></div>
+      <div class="dl-btn"><span class="material-icons">download</span></div>
     `;
-    const playBtn = card.querySelector(".play-wrap");
-    const icon = playBtn.querySelector(".material-icons");
-
-    playBtn.onclick=()=>{
-      if(currentSongKey===key && !player.paused){
-        player.pause();
-        icon.textContent="play_arrow";
-        playBtn.classList.remove("playing");
-        card.classList.remove("playing");
-        return;
-      }
-      if(currentCard){
-        currentCard.classList.remove("playing");
-        currentCard.querySelector(".play-wrap").classList.remove("playing");
-        currentCard.querySelector(".material-icons").textContent="play_arrow";
-      }
-      const urls = saavnCache[key];
-      const url =
-        urls.find(u=>u.quality===selectedQuality)?.url ||
-        urls.find(u=>u.quality==="320kbps")?.url ||
-        urls[0]?.url;
-      if(!url) return;
-
-      player.pause();
-      player.currentTime=0;
-      player.src=url;
-      player.play().catch(()=>{});
-
-      icon.textContent="pause";
-      playBtn.classList.add("playing");
-      card.classList.add("playing");
-      currentSongKey=key;
-      currentCard=card;
+    card.querySelector(".play-wrap").onclick=()=>playIndex(i);
+    card.querySelector(".dl-btn").onclick=async()=>{
+      const key=`${t.title} ${t.artists}`;
+      const u=saavnCache[key]?.[0]?.url;
+      if(!u) return;
+      const b=await fetch(u).then(r=>r.blob());
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(b);
+      a.download=`${key}.mp3`;
+      a.click();
     };
-
     tracksDiv.appendChild(card);
   });
+}
+
+player.ontimeupdate=()=>{
+  seekBar.value=(player.currentTime/player.duration||0)*100;
+  curTime.textContent=format(player.currentTime);
+  durTime.textContent=format(player.duration||0);
+};
+
+seekBar.oninput=()=>{
+  player.currentTime=(seekBar.value/100)*player.duration;
 };
 
 player.onended=()=>{
-  if(currentCard){
-    currentCard.classList.remove("playing");
-    currentCard.querySelector(".play-wrap").classList.remove("playing");
-    currentCard.querySelector(".material-icons").textContent="play_arrow";
+  if(repeat===2){ playIndex(currentIndex); return; }
+  if(shuffle){
+    playIndex(Math.floor(Math.random()*tracks.length));
+  }else{
+    if(currentIndex+1<tracks.length) playIndex(currentIndex+1);
+    else if(repeat===1) playIndex(0);
   }
-  currentCard=null;
-  currentSongKey=null;
 };
+
+playMain.onclick=()=>{
+  if(player.paused) player.play();
+  else player.pause();
+  updateUI();
+};
+
+document.getElementById("next").onclick=()=>playIndex((currentIndex+1)%tracks.length);
+document.getElementById("prev").onclick=()=>playIndex(currentIndex-1<0?tracks.length-1:currentIndex-1);
+document.getElementById("shuffle").onclick=()=>shuffle=!shuffle;
+document.getElementById("repeat").onclick=()=>repeat=(repeat+1)%3;
+
+// 🔥 AUTO LOAD (replace with your playlist URL)
+loadPlaylist("PASTE_SPOTIFY_PLAYLIST_URL_HERE");
 </script>
 
 </body>
