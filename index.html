@@ -8,44 +8,111 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-/* ===== Base Styles (Dark Mode Default) ===== */
+/* ===== CSS Variables for Adaptive Colors ===== */
+:root {
+  --bg: #121212;
+  --text: #fff;
+  --card-bg: #242424;
+  --card-hover: #2b2b2b;
+  --playing-outline: #7C4DFF;
+  --meta: #aaa;
+  --actions: #7C4DFF;
+  --quality-bg: #222;
+  --quality-border: #444;
+  --quality-text: #bbb;
+  --quality-active: #7C4DFF;
+  --highlight-bg: #ffeb3b;
+  --highlight-text: #000;
+  --fab-gradient-start: #7C4DFF;
+  --fab-gradient-end: #9a6bff;
+  --skeleton-bg: #1e1e1e;
+  --skeleton-line: #333;
+  --bar-bg: #333;
+  --bar-fill: linear-gradient(90deg,#7C4DFF,#9a6bff);
+}
+
+body.light-mode {
+  --bg: #fdfdfd;
+  --text: #222;
+  --card-bg: #fff;
+  --card-hover: #f0f0f0;
+  --playing-outline: #6200ea;
+  --meta: #555;
+  --actions: #6200ea;
+  --quality-bg: #eee;
+  --quality-border: #ccc;
+  --quality-text: #555;
+  --quality-active: #6200ea;
+  --highlight-bg: #ff9800;
+  --highlight-text: #fff;
+  --fab-gradient-start: #6200ea;
+  --fab-gradient-end: #9c27b0;
+  --skeleton-bg: #e0e0e0;
+  --skeleton-line: #ccc;
+  --bar-bg: #ccc;
+  --bar-fill: linear-gradient(90deg,#6200ea,#9c27b0);
+}
+
+/* ===== Base Styles ===== */
 body {
   margin: 0;
   font-family: 'Varela Round', system-ui;
-  background: #121212;
-  color: #fff;
+  background: var(--bg);
+  color: var(--text);
   transition: all 0.3s ease;
 }
-.container { max-width: 900px; margin: auto; padding: 20px 20px 180px; }
-.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-.header-title { font-size: 2rem; color: #7C4DFF; font-weight: bold; }
-.header-sub { font-size: .9rem; color: #aaa; margin-top: 5px; }
-.search { width: 100%; padding: 10px; margin: 15px 0; border-radius: 25px; border: 1px solid #333; background: #1e1e1e; color: #fff; font-size: 1rem; }
 
-.loader { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #7C4DFF; border-radius: 50%; animation: spin 1s linear infinite; }
+.container { max-width: 900px; margin: auto; padding: 20px 20px 180px; }
+
+.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.header-title { font-size: 2rem; color: var(--playing-outline); font-weight: bold; }
+.header-sub { font-size: .9rem; color: var(--meta); margin-top: 5px; }
+
+.search { width: 100%; padding: 10px; margin: 15px 0; border-radius: 25px; border: 1px solid #333; background: #1e1e1e; color: var(--text); font-size: 1rem; }
+body.light-mode .search { background: var(--card-bg); color: var(--text); border: 1px solid var(--quality-border); }
+
+/* ===== Loader ===== */
+.loader { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--playing-outline); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
 
-.card { display: flex; gap: 12px; padding: 12px; background: #242424; border-radius: 14px; margin-bottom: 12px; align-items: center; transition: .3s; cursor: pointer; }
-.card:hover { background: #2b2b2b; }
-.card.playing { outline: 2px solid #7C4DFF; }
+/* ===== Cards ===== */
+.card {
+  display: flex; gap: 12px; padding: 12px; background: var(--card-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; transition: .3s; cursor: pointer;
+}
+.card:hover { background: var(--card-hover); }
+.card.playing { outline: 2px solid var(--playing-outline); }
 
 .card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
 .card-info { flex: 1; overflow: hidden; }
 .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
-.meta { font-size: .8rem; color: #aaa; }
+.meta { font-size: .8rem; color: var(--meta); }
+
 .actions { display: flex; gap: 10px; }
-.actions span { cursor: pointer; color: #7C4DFF; }
+.actions span { cursor: pointer; color: var(--actions); transition: color 0.3s ease; }
 
-.quality-btn { background: #222; border: 1px solid #444; color: #bbb; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; }
-.quality-btn.active { border-color: #7C4DFF; color: #7C4DFF; }
+/* ===== Quality Buttons ===== */
+.quality-btn {
+  background: var(--quality-bg);
+  border: 1px solid var(--quality-border);
+  color: var(--quality-text);
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.quality-btn.active {
+  border-color: var(--quality-active);
+  color: var(--quality-active);
+}
 
+/* ===== FAB & Download All ===== */
 .fab, .download-all {
   position: fixed;
   right: 20px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(45deg,#7C4DFF,#9a6bff);
+  background: linear-gradient(45deg,var(--fab-gradient-start),var(--fab-gradient-end));
   border: none;
   color: #fff;
   font-size: 28px;
@@ -55,53 +122,28 @@ body {
 .fab { bottom: 20px; }
 .download-all { bottom: 90px; display: none; }
 
-.sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e1e1e; padding: 25px; transform: translateY(100%); transition: .3s; border-radius: 20px 20px 0 0; }
+/* ===== Sheet ===== */
+.sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); padding: 25px; transform: translateY(100%); transition: .3s; border-radius: 20px 20px 0 0; }
 .sheet.open { transform: translateY(0); }
-.sheet input, .sheet button { width: 100%; padding: 12px; border-radius: 25px; border: none; margin-bottom: 10px; }
+.sheet input, .sheet button { width: 100%; padding: 12px; border-radius: 25px; border: none; margin-bottom: 10px; background: var(--card-bg); color: var(--text); }
 
+/* ===== Progress ===== */
 .progress { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; }
 .progress.show { display: flex; }
-.box { background: #222; padding: 20px; border-radius: 20px; width: 300px; text-align: center; }
-.bar { height: 10px; background: #333; border-radius: 6px; overflow: hidden; }
-.bar div { height: 100%; width: 0; background: linear-gradient(90deg,#7C4DFF,#9a6bff); }
+.box { background: var(--card-bg); padding: 20px; border-radius: 20px; width: 300px; text-align: center; color: var(--text);}
+.bar { height: 10px; background: var(--bar-bg); border-radius: 6px; overflow: hidden; }
+.bar div { height: 100%; width: 0; background: var(--bar-fill); }
 
-.skeleton { display: flex; gap: 12px; padding: 12px; background: #1e1e1e; border-radius: 14px; margin-bottom: 12px; align-items: center; animation: shimmer 1.2s infinite linear; }
-.skeleton .img { width: 60px; height: 60px; background: #333; border-radius: 12px; }
+/* ===== Skeleton ===== */
+.skeleton { display: flex; gap: 12px; padding: 12px; background: var(--skeleton-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; animation: shimmer 1.2s infinite linear; }
+.skeleton .img { width: 60px; height: 60px; border-radius: 12px; background: var(--skeleton-line); }
 .skeleton .info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.skeleton .line { height: 14px; background: #333; border-radius: 6px; width: 80%; }
+.skeleton .line { height: 14px; border-radius: 6px; width: 80%; background: var(--skeleton-line); }
 .skeleton .line.short { width: 50%; }
 @keyframes shimmer { 0%{background-position:-200px 0}100%{background-position:200px 0} }
 
-/* ===== Highlights ===== */
-.title mark { background: #ffeb3b; color: #000; padding: 0 2px; border-radius: 2px; }
-
-/* ===== Light Mode Styles ===== */
-body.light-mode {
-  background: #fdfdfd;
-  color: #222;
-}
-body.light-mode .search { background: #fff; color: #222; border: 1px solid #ccc; }
-body.light-mode .card { background: #fff; color: #222; }
-body.light-mode .card:hover { background: #f0f0f0; }
-body.light-mode .card.playing { outline: 2px solid #6200ea; }
-body.light-mode .meta { color: #555; }
-body.light-mode .actions span { color: #6200ea; }
-body.light-mode .quality-btn { background: #eee; border: 1px solid #ccc; color: #555; }
-body.light-mode .quality-btn.active { border-color: #6200ea; color: #6200ea; }
-body.light-mode .fab, body.light-mode .download-all { background: linear-gradient(45deg,#6200ea,#9c27b0); }
-body.light-mode .sheet { background: #f9f9f9; }
-body.light-mode .sheet input, body.light-mode .sheet button { background: #fff; color: #222; }
-body.light-mode .progress .box { background: #fff; color: #222; }
-body.light-mode .bar { background: #ccc; }
-body.light-mode .bar div { background: linear-gradient(90deg,#6200ea,#9c27b0); }
-body.light-mode .skeleton { background: #e0e0e0; }
-body.light-mode .skeleton .img, body.light-mode .skeleton .line { background: #ccc; }
-body.light-mode .title mark { background: #ff9800; color: #fff; }
-
-/* ===== Icons Color ===== */
-.card .actions .material-icons { color: #7C4DFF; transition: color 0.3s ease; }
-body.light-mode .card .actions .material-icons { color: #6200ea; }
-
+/* ===== Highlight ===== */
+.title mark { background: var(--highlight-bg); color: var(--highlight-text); padding: 0 2px; border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -178,9 +220,9 @@ modeToggle.onclick = () => {
     modeToggle.textContent = "Light Mode";
     localStorage.removeItem("mode");
   }
-  // Update icons color dynamically
+  // Update icons dynamically
   document.querySelectorAll(".card .actions .material-icons").forEach(ic=>{
-    ic.style.color = document.body.classList.contains("light-mode") ? "#6200ea" : "#7C4DFF";
+    ic.style.color = getComputedStyle(document.documentElement).getPropertyValue('--actions');
   });
 };
 
