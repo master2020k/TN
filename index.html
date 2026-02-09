@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-/* Base Dark Mode Styles */
+/* ===== Base Styles (Dark Mode Default) ===== */
 body {
   margin: 0;
   font-family: 'Varela Round', system-ui;
@@ -32,15 +32,26 @@ body {
 .card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
 .card-info { flex: 1; overflow: hidden; }
 .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
-.title mark { background: yellow; color: #000; padding: 0 2px; border-radius: 2px; }
 .meta { font-size: .8rem; color: #aaa; }
 .actions { display: flex; gap: 10px; }
 .actions span { cursor: pointer; color: #7C4DFF; }
 
-.quality-btn { background: #222; border: 1px solid #444; color: #bbb; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
+.quality-btn { background: #222; border: 1px solid #444; color: #bbb; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; }
 .quality-btn.active { border-color: #7C4DFF; color: #7C4DFF; }
 
-.fab, .download-all { position: fixed; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(45deg,#7C4DFF,#9a6bff); border: none; color: #fff; font-size: 28px; cursor: pointer; }
+.fab, .download-all {
+  position: fixed;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(45deg,#7C4DFF,#9a6bff);
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 .fab { bottom: 20px; }
 .download-all { bottom: 90px; display: none; }
 
@@ -61,22 +72,38 @@ body {
 .skeleton .line.short { width: 50%; }
 @keyframes shimmer { 0%{background-position:-200px 0}100%{background-position:200px 0} }
 
-/* Light Mode Overrides */
+/* ===== Highlights ===== */
+.title mark { background: #ffeb3b; color: #000; padding: 0 2px; border-radius: 2px; }
+
+/* ===== Light Mode Styles ===== */
 body.light-mode {
-  background: #ffffff;
-  color: #000000;
+  background: #fdfdfd;
+  color: #222;
 }
-body.light-mode .container { background: #f9f9f9; }
-body.light-mode .search { background: #eee; color: #000; border: 1px solid #ccc; }
-body.light-mode .card { background: #fff; color: #000; }
+body.light-mode .search { background: #fff; color: #222; border: 1px solid #ccc; }
+body.light-mode .card { background: #fff; color: #222; }
 body.light-mode .card:hover { background: #f0f0f0; }
-body.light-mode .skeleton { background: #e0e0e0; }
-body.light-mode .sheet { background: #f0f0f0; }
-body.light-mode .progress .box { background: #f0f0f0; color: #000; }
+body.light-mode .card.playing { outline: 2px solid #6200ea; }
+body.light-mode .meta { color: #555; }
+body.light-mode .actions span { color: #6200ea; }
+body.light-mode .quality-btn { background: #eee; border: 1px solid #ccc; color: #555; }
 body.light-mode .quality-btn.active { border-color: #6200ea; color: #6200ea; }
+body.light-mode .fab, body.light-mode .download-all { background: linear-gradient(45deg,#6200ea,#9c27b0); }
+body.light-mode .sheet { background: #f9f9f9; }
+body.light-mode .sheet input, body.light-mode .sheet button { background: #fff; color: #222; }
+body.light-mode .progress .box { background: #fff; color: #222; }
+body.light-mode .bar { background: #ccc; }
+body.light-mode .bar div { background: linear-gradient(90deg,#6200ea,#9c27b0); }
+body.light-mode .skeleton { background: #e0e0e0; }
+body.light-mode .skeleton .img, body.light-mode .skeleton .line { background: #ccc; }
+body.light-mode .title mark { background: #ff9800; color: #fff; }
+
+/* ===== Icons Color ===== */
+.card .actions .material-icons { color: #7C4DFF; transition: color 0.3s ease; }
+body.light-mode .card .actions .material-icons { color: #6200ea; }
+
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -116,9 +143,11 @@ body.light-mode .quality-btn.active { border-color: #6200ea; color: #6200ea; }
 <audio id="player"></audio>
 
 <script>
+// ===== APIs =====
 const SPOTIFY_API="https://spotify-api-6yog.vercel.app/api/scrape";
 const SAAVN_API="https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
 
+// ===== Elements =====
 const tracksDiv=document.getElementById("tracks");
 const loader=document.getElementById("loader");
 const player=document.getElementById("player");
@@ -127,37 +156,60 @@ const downloadAllBtn=document.getElementById("downloadAll");
 const progress=document.getElementById("progress");
 const pBar=document.getElementById("pBar");
 const pText=document.getElementById("pText");
+const modeToggle=document.getElementById("modeToggle");
 
 let quality="320kbps";
 let saavnCache={};
 let currentKey=null,currentBtn=null,currentCard=null;
 
-// Quality buttons
-document.querySelectorAll(".quality-btn[data-q]").forEach(b=>{
+// ===== Load mode from localStorage =====
+if(localStorage.getItem("mode")==="light"){
+  document.body.classList.add("light-mode");
+  modeToggle.textContent="Dark Mode";
+}
+
+// ===== Mode toggle =====
+modeToggle.onclick = () => {
+  document.body.classList.toggle("light-mode");
+  if(document.body.classList.contains("light-mode")){
+    modeToggle.textContent = "Dark Mode";
+    localStorage.setItem("mode","light");
+  } else {
+    modeToggle.textContent = "Light Mode";
+    localStorage.removeItem("mode");
+  }
+  // Update icons color dynamically
+  document.querySelectorAll(".card .actions .material-icons").forEach(ic=>{
+    ic.style.color = document.body.classList.contains("light-mode") ? "#6200ea" : "#7C4DFF";
+  });
+};
+
+// ===== Quality buttons =====
+document.querySelectorAll(".quality-btn").forEach(b=>{
   b.onclick=()=>{
-    document.querySelectorAll(".quality-btn[data-q]").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".quality-btn").forEach(x=>x.classList.remove("active"));
     b.classList.add("active");
     quality=b.dataset.q;
   };
 });
 
-// FAB
+// ===== FAB =====
 const fab=document.getElementById("fab");
 const sheet=document.getElementById("sheet");
 fab.onclick=()=>sheet.classList.add("open");
 
-// Playlist ID parser
+// ===== Playlist parser =====
 function getPlaylistId(url){
-    try{
-        const u=new URL(url);
-        const parts=u.pathname.split('/');
-        const idx=parts.indexOf('playlist');
-        if(idx!==-1 && parts[idx+1]) return parts[idx+1];
-        return null;
-    }catch{return null;}
+  try{
+    const u=new URL(url);
+    const parts=u.pathname.split('/');
+    const idx=parts.indexOf('playlist');
+    if(idx!==-1 && parts[idx+1]) return parts[idx+1];
+    return null;
+  }catch{return null;}
 }
 
-// Skeleton cards
+// ===== Skeleton =====
 function showSkeletons(count){
   tracksDiv.innerHTML="";
   for(let i=0;i<count;i++){
@@ -168,14 +220,14 @@ function showSkeletons(count){
   }
 }
 
-// Highlight search term
+// ===== Highlight =====
 function highlight(text, term){
   if(!term) return text;
   const re=new RegExp(`(${term})`,"gi");
   return text.replace(re,"<mark>$1</mark>");
 }
 
-// Prefetch Saavn
+// ===== Prefetch Saavn =====
 async function prefetch(key){
   if(saavnCache[key]) return;
   try{
@@ -185,10 +237,10 @@ async function prefetch(key){
   }catch{ saavnCache[key]=[]; }
 }
 
-// Get best quality
+// ===== Get best quality =====
 function getBest(urls){if(!urls)return null;return urls.find(u=>u.quality===quality)||urls[0];}
 
-// Load playlist
+// ===== Load Playlist =====
 document.getElementById("loadBtn").onclick=async()=>{
   const url=document.getElementById("playlistUrl").value.trim();
   const id=getPlaylistId(url);
@@ -228,7 +280,6 @@ document.getElementById("loadBtn").onclick=async()=>{
       c.querySelector(".play").onclick=()=>{
         const best=getBest(saavnCache[key]);
         if(!best)return;
-
         if(currentKey===key){
           if(player.paused){player.play(); c.querySelector(".play").textContent="pause";}
           else{player.pause(); c.querySelector(".play").textContent="play_arrow";}
@@ -255,16 +306,15 @@ document.getElementById("loadBtn").onclick=async()=>{
         a.click();
       };
     }
-
     downloadAllBtn.style.display="block";
   }catch(e){alert("Error loading playlist: "+e.message);}
   loader.style.display="none";
 };
 
-// Audio end event
+// ===== Audio ended =====
 player.onended=()=>{if(currentBtn)currentBtn.textContent="play_arrow"; if(currentCard)currentCard.classList.remove("playing"); currentKey=null; currentBtn=null;};
 
-// Search input
+// ===== Search =====
 searchInput.oninput=e=>{
   const q=e.target.value.toLowerCase().trim();
   document.querySelectorAll(".card").forEach(c=>{
@@ -276,7 +326,7 @@ searchInput.oninput=e=>{
   });
 };
 
-// Download all
+// ===== Download All =====
 downloadAllBtn.onclick=async()=>{
   const entries=Object.entries(saavnCache);
   progress.classList.add("show");
@@ -296,24 +346,6 @@ downloadAllBtn.onclick=async()=>{
   }
   progress.classList.remove("show");
 };
-
-// Dark/Light mode toggle
-const modeToggle = document.getElementById("modeToggle");
-if(localStorage.getItem("mode") === "light") {
-  document.body.classList.add("light-mode");
-  modeToggle.textContent = "Dark Mode";
-}
-modeToggle.onclick = () => {
-  document.body.classList.toggle("light-mode");
-  if(document.body.classList.contains("light-mode")) {
-    modeToggle.textContent = "Dark Mode";
-    localStorage.setItem("mode","light");
-  } else {
-    modeToggle.textContent = "Light Mode";
-    localStorage.removeItem("mode");
-  }
-};
 </script>
-
 </body>
 </html>
