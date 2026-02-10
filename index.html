@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-/* ===== CSS Variables for Adaptive Colors ===== */
+/* ===== CSS Variables ===== */
 :root {
   --bg: #121212;
   --text: #fff;
@@ -31,7 +31,8 @@
   --bar-fill: linear-gradient(90deg,#7C4DFF,#9a6bff);
 }
 
-body.light-mode {
+/* ===== Light Mode Variables ===== */
+body[data-theme="light"] {
   --bg: #fdfdfd;
   --text: #222;
   --card-bg: #fff;
@@ -64,33 +65,18 @@ body {
 
 .container { max-width: 900px; margin: auto; padding: 20px 20px 180px; }
 
-.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+/* ===== Header & Buttons ===== */
+.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; position: relative; }
 .header-title { font-size: 2rem; color: var(--playing-outline); font-weight: bold; }
 .header-sub { font-size: .9rem; color: var(--meta); margin-top: 5px; }
 
-.search { width: 100%; padding: 10px; margin: 15px 0; border-radius: 25px; border: 1px solid #333; background: #1e1e1e; color: var(--text); font-size: 1rem; }
-body.light-mode .search { background: var(--card-bg); color: var(--text); border: 1px solid var(--quality-border); }
-
-/* ===== Loader ===== */
-.loader { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--playing-outline); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
-
-/* ===== Cards ===== */
-.card {
-  display: flex; gap: 12px; padding: 12px; background: var(--card-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; transition: .3s; cursor: pointer;
+/* Quality buttons container */
+.header > div:last-child {
+  display: flex;
+  gap: 10px;
+  margin-right: 70px; /* Shift left to avoid dark mode button */
 }
-.card:hover { background: var(--card-hover); }
-.card.playing { outline: 2px solid var(--playing-outline); }
 
-.card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
-.card-info { flex: 1; overflow: hidden; }
-.title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
-.meta { font-size: .8rem; color: var(--meta); }
-
-.actions { display: flex; gap: 10px; }
-.actions span { cursor: pointer; color: var(--actions); transition: color 0.3s ease; }
-
-/* ===== Quality Buttons ===== */
 .quality-btn {
   background: var(--quality-bg);
   border: 1px solid var(--quality-border);
@@ -104,6 +90,51 @@ body.light-mode .search { background: var(--card-bg); color: var(--text); border
   border-color: var(--quality-active);
   color: var(--quality-active);
 }
+
+/* ===== Dark Mode Button ===== */
+#modeToggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  z-index: 999;
+  transition: background 0.3s, transform 0.3s;
+}
+#modeToggle:hover {
+  background: var(--card-hover);
+  transform: scale(1.1);
+}
+
+/* ===== Search ===== */
+.search { width: 100%; padding: 10px; margin: 15px 0; border-radius: 25px; border: 1px solid #333; background: #1e1e1e; color: var(--text); font-size: 1rem; }
+
+/* ===== Loader ===== */
+.loader { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--playing-outline); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+
+/* ===== Cards ===== */
+.card { display: flex; gap: 12px; padding: 12px; background: var(--card-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; transition: .3s; cursor: pointer; }
+.card:hover { background: var(--card-hover); }
+.card.playing { outline: 2px solid var(--playing-outline); }
+
+.card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
+.card-info { flex: 1; overflow: hidden; }
+.title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
+.meta { font-size: .8rem; color: var(--meta); }
+
+.actions { display: flex; gap: 10px; }
+.actions span { cursor: pointer; color: var(--actions); transition: color 0.3s ease; }
 
 /* ===== FAB & Download All ===== */
 .fab, .download-all {
@@ -158,7 +189,6 @@ body.light-mode .search { background: var(--card-bg); color: var(--text); border
       <button class="quality-btn active" data-q="320kbps">320</button>
       <button class="quality-btn" data-q="160kbps">160</button>
       <button class="quality-btn" data-q="96kbps">96</button>
-      <button id="modeToggle" class="quality-btn">Light Mode</button>
     </div>
   </div>
 
@@ -169,6 +199,7 @@ body.light-mode .search { background: var(--card-bg); color: var(--text); border
 
 <button class="download-all" id="downloadAll">⬇</button>
 <button class="fab" id="fab">+</button>
+<button id="modeToggle">🌙</button>
 
 <div class="sheet" id="sheet">
   <input id="playlistUrl" placeholder="Spotify playlist URL">
@@ -195,35 +226,22 @@ const loader=document.getElementById("loader");
 const player=document.getElementById("player");
 const searchInput=document.getElementById("search");
 const downloadAllBtn=document.getElementById("downloadAll");
-const progress=document.getElementById("progress");
-const pBar=document.getElementById("pBar");
-const pText=document.getElementById("pText");
-const modeToggle=document.getElementById("modeToggle");
 
 let quality="320kbps";
 let saavnCache={};
 let currentKey=null,currentBtn=null,currentCard=null;
 
-// ===== Load mode from localStorage =====
-if(localStorage.getItem("mode")==="light"){
-  document.body.classList.add("light-mode");
-  modeToggle.textContent="Dark Mode";
-}
+// ===== Dark Mode =====
+const modeToggleButton = document.getElementById('modeToggle');
+let currentTheme = localStorage.getItem('theme') || 'light';
+document.body.setAttribute('data-theme', currentTheme);
+modeToggleButton.textContent = currentTheme === 'dark' ? '🌞' : '🌙';
 
-// ===== Mode toggle =====
-modeToggle.onclick = () => {
-  document.body.classList.toggle("light-mode");
-  if(document.body.classList.contains("light-mode")){
-    modeToggle.textContent = "Dark Mode";
-    localStorage.setItem("mode","light");
-  } else {
-    modeToggle.textContent = "Light Mode";
-    localStorage.removeItem("mode");
-  }
-  // Update icons dynamically
-  document.querySelectorAll(".card .actions .material-icons").forEach(ic=>{
-    ic.style.color = getComputedStyle(document.documentElement).getPropertyValue('--actions');
-  });
+modeToggleButton.onclick = () => {
+  const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  modeToggleButton.textContent = newTheme === 'dark' ? '🌞' : '🌙';
 };
 
 // ===== Quality buttons =====
@@ -371,6 +389,10 @@ searchInput.oninput=e=>{
 // ===== Download All =====
 downloadAllBtn.onclick=async()=>{
   const entries=Object.entries(saavnCache);
+  const progress=document.getElementById("progress");
+  const pBar=document.getElementById("pBar");
+  const pText=document.getElementById("pText");
+
   progress.classList.add("show");
 
   for(let i=0;i<entries.length;i++){
