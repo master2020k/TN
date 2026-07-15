@@ -4,411 +4,1560 @@
 <meta charset="UTF-8">
 <title>Playlist Downloader</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <style>
-/* ===== CSS Variables ===== */
-:root {
-  --bg: #121212;
-  --text: #fff;
-  --card-bg: #242424;
-  --card-hover: #2b2b2b;
-  --playing-outline: #7C4DFF;
-  --meta: #aaa;
-  --actions: #7C4DFF;
-  --quality-bg: #222;
-  --quality-border: #444;
-  --quality-text: #bbb;
-  --quality-active: #7C4DFF;
-  --highlight-bg: #ffeb3b;
-  --highlight-text: #000;
-  --fab-gradient-start: #7C4DFF;
-  --fab-gradient-end: #9a6bff;
-  --skeleton-bg: #1e1e1e;
-  --skeleton-line: #333;
-  --bar-bg: #333;
-  --bar-fill: linear-gradient(90deg,#7C4DFF,#9a6bff);
+
+:root{
+ --bg:#121212;
+ --text:#ffffff;
+ --card:#242424;
+ --hover:#2b2b2b;
+ --primary:#7C4DFF;
+ --meta:#aaa;
+ --border:#444;
+ --bar:#333;
 }
 
-/* ===== Light Mode Variables ===== */
-body[data-theme="light"] {
-  --bg: #fdfdfd;
-  --text: #222;
-  --card-bg: #fff;
-  --card-hover: #f0f0f0;
-  --playing-outline: #6200ea;
-  --meta: #555;
-  --actions: #6200ea;
-  --quality-bg: #eee;
-  --quality-border: #ccc;
-  --quality-text: #555;
-  --quality-active: #6200ea;
-  --highlight-bg: #ff9800;
-  --highlight-text: #fff;
-  --fab-gradient-start: #6200ea;
-  --fab-gradient-end: #9c27b0;
-  --skeleton-bg: #e0e0e0;
-  --skeleton-line: #ccc;
-  --bar-bg: #ccc;
-  --bar-fill: linear-gradient(90deg,#6200ea,#9c27b0);
+
+body[data-theme="light"]{
+ --bg:#fafafa;
+ --text:#222;
+ --card:#ffffff;
+ --hover:#eeeeee;
+ --primary:#6200ea;
+ --meta:#555;
+ --border:#ccc;
+ --bar:#ccc;
 }
 
-/* ===== Base Styles ===== */
-body {
-  margin: 0;
-  font-family: 'Varela Round', system-ui;
-  background: var(--bg);
-  color: var(--text);
-  transition: all 0.3s ease;
+
+*{
+ box-sizing:border-box;
 }
 
-.container { max-width: 900px; margin: auto; padding: 20px 20px 180px; }
 
-/* ===== Header & Buttons ===== */
-.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; position: relative; }
-.header-title { font-size: 2rem; color: var(--playing-outline); font-weight: bold; }
-.header-sub { font-size: .9rem; color: var(--meta); margin-top: 5px; }
-
-/* Quality buttons container */
-.header > div:last-child {
-  display: flex;
-  gap: 10px;
-  margin-right: 70px; /* Shift left to avoid dark mode button */
+body{
+ margin:0;
+ font-family:'Varela Round',sans-serif;
+ background:var(--bg);
+ color:var(--text);
+ transition:.3s;
 }
 
-.quality-btn {
-  background: var(--quality-bg);
-  border: 1px solid var(--quality-border);
-  color: var(--quality-text);
-  padding: 6px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.quality-btn.active {
-  border-color: var(--quality-active);
-  color: var(--quality-active);
+
+.container{
+ max-width:900px;
+ margin:auto;
+ padding:20px 20px 180px;
 }
 
-/* ===== Dark Mode Button ===== */
-#modeToggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--card-bg);
-  color: var(--text);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  z-index: 999;
-  transition: background 0.3s, transform 0.3s;
-}
-#modeToggle:hover {
-  background: var(--card-hover);
-  transform: scale(1.1);
+
+
+/* HEADER */
+
+.header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ flex-wrap:wrap;
 }
 
-/* ===== Search ===== */
-.search { width: 100%; padding: 10px; margin: 15px 0; border-radius: 25px; border: 1px solid #333; background: #1e1e1e; color: var(--text); font-size: 1rem; }
 
-/* ===== Loader ===== */
-.loader { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--playing-outline); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
-
-/* ===== Cards ===== */
-.card { display: flex; gap: 12px; padding: 12px; background: var(--card-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; transition: .3s; cursor: pointer; }
-.card:hover { background: var(--card-hover); }
-.card.playing { outline: 2px solid var(--playing-outline); }
-
-.card img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
-.card-info { flex: 1; overflow: hidden; }
-.title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; }
-.meta { font-size: .8rem; color: var(--meta); }
-
-.actions { display: flex; gap: 10px; }
-.actions span { cursor: pointer; color: var(--actions); transition: color 0.3s ease; }
-
-/* ===== FAB & Download All ===== */
-.fab, .download-all {
-  position: fixed;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(45deg,var(--fab-gradient-start),var(--fab-gradient-end));
-  border: none;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.header-title{
+ font-size:2rem;
+ font-weight:bold;
+ color:var(--primary);
 }
-.fab { bottom: 20px; }
-.download-all { bottom: 90px; display: none; }
 
-/* ===== Sheet ===== */
-.sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); padding: 25px; transform: translateY(100%); transition: .3s; border-radius: 20px 20px 0 0; }
-.sheet.open { transform: translateY(0); }
-.sheet input, .sheet button { width: 100%; padding: 12px; border-radius: 25px; border: none; margin-bottom: 10px; background: var(--card-bg); color: var(--text); }
 
-/* ===== Progress ===== */
-.progress { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; }
-.progress.show { display: flex; }
-.box { background: var(--card-bg); padding: 20px; border-radius: 20px; width: 300px; text-align: center; color: var(--text);}
-.bar { height: 10px; background: var(--bar-bg); border-radius: 6px; overflow: hidden; }
-.bar div { height: 100%; width: 0; background: var(--bar-fill); }
+.header-sub{
+ margin-top:5px;
+ color:var(--meta);
+}
 
-/* ===== Skeleton ===== */
-.skeleton { display: flex; gap: 12px; padding: 12px; background: var(--skeleton-bg); border-radius: 14px; margin-bottom: 12px; align-items: center; animation: shimmer 1.2s infinite linear; }
-.skeleton .img { width: 60px; height: 60px; border-radius: 12px; background: var(--skeleton-line); }
-.skeleton .info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.skeleton .line { height: 14px; border-radius: 6px; width: 80%; background: var(--skeleton-line); }
-.skeleton .line.short { width: 50%; }
-@keyframes shimmer { 0%{background-position:-200px 0}100%{background-position:200px 0} }
 
-/* ===== Highlight ===== */
-.title mark { background: var(--highlight-bg); color: var(--highlight-text); padding: 0 2px; border-radius: 2px; }
+
+.quality-btn{
+
+ background:transparent;
+ border:1px solid var(--border);
+ color:var(--meta);
+
+ padding:7px 15px;
+
+ border-radius:20px;
+
+ cursor:pointer;
+
+}
+
+
+.quality-btn.active{
+
+ border-color:var(--primary);
+ color:var(--primary);
+
+}
+
+
+
+/* MODE BUTTON */
+
+#modeToggle{
+
+ position:fixed;
+
+ top:20px;
+ right:20px;
+
+ width:50px;
+ height:50px;
+
+ border-radius:50%;
+
+ border:none;
+
+ cursor:pointer;
+
+ background:var(--card);
+ color:var(--text);
+
+ font-size:22px;
+
+ z-index:999;
+
+ box-shadow:0 4px 10px #0005;
+
+}
+
+
+
+
+/* SEARCH */
+
+.search{
+
+ width:100%;
+
+ margin:20px 0;
+
+ padding:12px 18px;
+
+ border-radius:25px;
+
+ border:1px solid var(--border);
+
+ background:var(--card);
+
+ color:var(--text);
+
+ font-size:16px;
+
+}
+
+
+
+/* LOADER */
+
+.loader{
+
+ display:none;
+
+ margin:20px auto;
+
+ width:40px;
+
+ height:40px;
+
+ border-radius:50%;
+
+ border:5px solid #333;
+
+ border-top-color:var(--primary);
+
+ animation:spin 1s linear infinite;
+
+}
+
+
+@keyframes spin{
+
+100%{
+transform:rotate(360deg);
+}
+
+}
+
+
+
+/* TRACK CARD */
+
+.card{
+
+ display:flex;
+
+ align-items:center;
+
+ gap:12px;
+
+ background:var(--card);
+
+ padding:12px;
+
+ margin-bottom:12px;
+
+ border-radius:15px;
+
+ transition:.3s;
+
+}
+
+
+.card:hover{
+
+ background:var(--hover);
+
+}
+
+
+.card.playing{
+
+ outline:2px solid var(--primary);
+
+}
+
+
+.card img{
+
+ width:60px;
+
+ height:60px;
+
+ object-fit:cover;
+
+ border-radius:12px;
+
+}
+
+
+
+.card-info{
+
+ flex:1;
+
+ overflow:hidden;
+
+}
+
+
+.title{
+
+ font-weight:bold;
+
+ white-space:nowrap;
+
+ overflow:hidden;
+
+ text-overflow:ellipsis;
+
+}
+
+
+.meta{
+
+ color:var(--meta);
+
+ font-size:.85rem;
+
+}
+
+
+
+.actions{
+
+ display:flex;
+
+ gap:12px;
+
+}
+
+
+.actions span{
+
+ cursor:pointer;
+
+ color:var(--primary);
+
+}
+
+
+
+/* FLOAT BUTTONS */
+
+
+.fab,
+.download-all{
+
+ position:fixed;
+
+ right:20px;
+
+ width:56px;
+
+ height:56px;
+
+ border-radius:50%;
+
+ border:none;
+
+ background:linear-gradient(
+ 45deg,
+ #7C4DFF,
+ #9a6bff
+ );
+
+ color:white;
+
+ font-size:28px;
+
+ cursor:pointer;
+
+}
+
+
+
+.fab{
+
+ bottom:20px;
+
+}
+
+
+
+.download-all{
+
+ bottom:90px;
+
+ display:none;
+
+}
+
+
+
+/* BOTTOM SHEET */
+
+
+.sheet{
+
+ position:fixed;
+
+ bottom:0;
+
+ left:0;
+
+ width:100%;
+
+ padding:25px;
+
+ background:var(--card);
+
+ border-radius:20px 20px 0 0;
+
+ transform:translateY(100%);
+
+ transition:.3s;
+
+}
+
+
+
+.sheet.open{
+
+ transform:translateY(0);
+
+}
+
+
+
+.sheet input,
+.sheet button{
+
+ width:100%;
+
+ padding:14px;
+
+ margin-bottom:10px;
+
+ border-radius:25px;
+
+ border:none;
+
+ background:var(--bg);
+
+ color:var(--text);
+
+}
+
+
+
+/* PROGRESS */
+
+
+.progress{
+
+ position:fixed;
+
+ inset:0;
+
+ background:#0008;
+
+ display:none;
+
+ justify-content:center;
+
+ align-items:center;
+
+}
+
+
+.progress.show{
+
+ display:flex;
+
+}
+
+
+.box{
+
+ width:300px;
+
+ background:var(--card);
+
+ padding:25px;
+
+ border-radius:20px;
+
+ text-align:center;
+
+}
+
+
+.bar{
+
+ height:10px;
+
+ background:var(--bar);
+
+ overflow:hidden;
+
+ border-radius:10px;
+
+}
+
+
+.bar div{
+
+ height:100%;
+
+ width:0;
+
+ background:linear-gradient(
+ 90deg,
+ #7C4DFF,
+ #9a6bff
+ );
+
+}
+
+
+
+/* SKELETON */
+
+
+.skeleton{
+
+ height:85px;
+
+ background:var(--card);
+
+ border-radius:15px;
+
+ margin-bottom:12px;
+
+ animation:pulse 1s infinite alternate;
+
+}
+
+
+@keyframes pulse{
+
+from{
+opacity:.5;
+}
+
+to{
+opacity:1;
+}
+
+}
+
 </style>
+
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <div>
-      <div class="header-title">Playlist Downloader</div>
-      <div class="header-sub" id="trackCount">No playlist loaded</div>
-    </div>
-    <div>
-      <button class="quality-btn active" data-q="320kbps">320</button>
-      <button class="quality-btn" data-q="160kbps">160</button>
-      <button class="quality-btn" data-q="96kbps">96</button>
-    </div>
-  </div>
 
-  <input class="search" id="search" placeholder="Search by song title">
-  <div class="loader" id="loader"></div>
-  <div id="tracks"></div>
+<div class="container">
+
+
+<div class="header">
+
+<div>
+
+<div class="header-title">
+Playlist Downloader
 </div>
 
-<button class="download-all" id="downloadAll">⬇</button>
-<button class="fab" id="fab">+</button>
-<button id="modeToggle">🌙</button>
+
+<div class="header-sub" id="trackCount">
+No playlist loaded
+</div>
+
+
+</div>
+
+
+<div>
+
+<button class="quality-btn active" data-q="320kbps">
+320
+</button>
+
+
+<button class="quality-btn" data-q="160kbps">
+160
+</button>
+
+
+<button class="quality-btn" data-q="96kbps">
+96
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<input
+class="search"
+id="search"
+placeholder="Search song title">
+
+
+
+<div class="loader" id="loader"></div>
+
+
+
+<div id="tracks"></div>
+
+
+</div>
+
+
+
+
+<button class="download-all" id="downloadAll">
+⬇
+</button>
+
+
+<button class="fab" id="fab">
++
+</button>
+
+
+<button id="modeToggle">
+🌙
+</button>
+
+
+
 
 <div class="sheet" id="sheet">
-  <input id="playlistUrl" placeholder="Spotify playlist URL">
-  <button id="loadBtn">Load Playlist</button>
+
+<input
+id="playlistUrl"
+placeholder="Spotify playlist URL">
+
+
+<button id="loadBtn">
+Load Playlist
+</button>
+
+
 </div>
 
+
+
+
 <div class="progress" id="progress">
-  <div class="box">
-    <b id="pText">0 / 0</b>
-    <div class="bar"><div id="pBar"></div></div>
-  </div>
+
+<div class="box">
+
+<b id="pText">
+0 / 0
+</b>
+
+<div class="bar">
+<div id="pBar"></div>
 </div>
+
+</div>
+
+</div>
+
 
 <audio id="player"></audio>
 
-<script>
-// ===== APIs =====
-const SPOTIFY_API="https://spotify-api-6yog.vercel.app/api/scrape";
-const SAAVN_API="https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
 
-// ===== Elements =====
+<!-- Part 3B JavaScript goes here -->
+  <script>
+
+// ===============================
+// API CONFIG
+// ===============================
+
+const SPOTIFY_API =
+"https://spotify-api-6yog.vercel.app/api/scrape";
+
+const SAAVN_API =
+"https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
+
+
+
+// ===============================
+// ELEMENTS
+// ===============================
+
 const tracksDiv=document.getElementById("tracks");
 const loader=document.getElementById("loader");
 const player=document.getElementById("player");
+
 const searchInput=document.getElementById("search");
-const downloadAllBtn=document.getElementById("downloadAll");
+
+const downloadAllBtn=
+document.getElementById("downloadAll");
+
+const sheet=
+document.getElementById("sheet");
+
+const fab=
+document.getElementById("fab");
+
 
 let quality="320kbps";
+
 let saavnCache={};
-let currentKey=null,currentBtn=null,currentCard=null;
 
-// ===== Dark Mode =====
-const modeToggleButton = document.getElementById('modeToggle');
-let currentTheme = localStorage.getItem('theme') || 'light';
-document.body.setAttribute('data-theme', currentTheme);
-modeToggleButton.textContent = currentTheme === 'dark' ? '🌞' : '🌙';
+let currentKey=null;
+let currentBtn=null;
+let currentCard=null;
 
-modeToggleButton.onclick = () => {
-  const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  document.body.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-  modeToggleButton.textContent = newTheme === 'dark' ? '🌞' : '🌙';
+
+
+
+// ===============================
+// THEME
+// ===============================
+
+const modeToggle=
+document.getElementById("modeToggle");
+
+
+let theme=
+localStorage.getItem("theme") || "dark";
+
+
+document.body.setAttribute(
+"data-theme",
+theme
+);
+
+
+modeToggle.textContent=
+theme==="dark" ? "🌞":"🌙";
+
+
+
+modeToggle.onclick=()=>{
+
+theme=
+document.body.getAttribute("data-theme")
+==="dark"
+?"light"
+:"dark";
+
+
+document.body.setAttribute(
+"data-theme",
+theme
+);
+
+
+localStorage.setItem(
+"theme",
+theme
+);
+
+
+modeToggle.textContent=
+theme==="dark"
+?"🌞"
+:"🌙";
+
 };
 
-// ===== Quality buttons =====
-document.querySelectorAll(".quality-btn").forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll(".quality-btn").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active");
-    quality=b.dataset.q;
-  };
+
+
+
+
+// ===============================
+// QUALITY BUTTONS
+// ===============================
+
+document
+.querySelectorAll(".quality-btn")
+.forEach(btn=>{
+
+
+btn.onclick=()=>{
+
+
+document
+.querySelectorAll(".quality-btn")
+.forEach(x=>
+x.classList.remove("active")
+);
+
+
+
+btn.classList.add("active");
+
+
+quality=
+btn.dataset.q;
+
+
+};
+
+
 });
 
-// ===== FAB =====
-const fab=document.getElementById("fab");
-const sheet=document.getElementById("sheet");
-fab.onclick=()=>sheet.classList.add("open");
 
-// ===== Playlist parser =====
+
+
+
+// ===============================
+// SHEET
+// ===============================
+
+fab.onclick=()=>{
+
+sheet.classList.add("open");
+
+};
+
+
+
+
+
+// ===============================
+// PLAYLIST ID FIX
+// ===============================
+
 function getPlaylistId(url){
-  try{
-    const u=new URL(url);
-    const parts=u.pathname.split('/');
-    const idx=parts.indexOf('playlist');
-    if(idx!==-1 && parts[idx+1]) return parts[idx+1];
-    return null;
-  }catch{return null;}
+
+
+try{
+
+
+url=url.trim();
+
+
+
+if(url.startsWith(
+"spotify:playlist:"
+)){
+
+
+return url.split(":")[2];
+
+
 }
 
-// ===== Skeleton =====
+
+
+
+const u=
+new URL(url);
+
+
+
+const match=
+u.pathname.match(
+/playlist\/([a-zA-Z0-9]+)/
+);
+
+
+
+return match ? match[1] : null;
+
+
+
+}
+catch{
+
+return null;
+
+}
+
+
+}
+
+
+
+
+
+// ===============================
+// FETCH FIX
+// ===============================
+
+async function apiFetch(url){
+
+
+const controller=
+new AbortController();
+
+
+
+const timer=setTimeout(()=>{
+
+controller.abort();
+
+},15000);
+
+
+
+
+try{
+
+
+const response=
+await fetch(url,{
+
+signal:controller.signal,
+
+headers:{
+"Accept":"application/json"
+}
+
+});
+
+
+
+clearTimeout(timer);
+
+
+
+if(!response.ok){
+
+
+const text=
+await response.text();
+
+
+throw new Error(
+`Server ${response.status}: ${text.substring(0,120)}`
+);
+
+
+}
+
+
+
+return await response.json();
+
+
+
+}
+catch(err){
+
+
+clearTimeout(timer);
+
+
+
+if(err.name==="AbortError"){
+
+throw new Error(
+"API timeout"
+);
+
+}
+
+
+
+if(err.message.includes(
+"Failed to fetch"
+)){
+
+
+throw new Error(
+"Cannot connect API. Check CORS or server status."
+);
+
+
+}
+
+
+
+throw err;
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// SKELETON
+// ===============================
+
 function showSkeletons(count){
-  tracksDiv.innerHTML="";
-  for(let i=0;i<count;i++){
-    const s=document.createElement("div");
-    s.className="skeleton";
-    s.innerHTML=`<div class="img"></div><div class="info"><div class="line"></div><div class="line short"></div></div>`;
-    tracksDiv.appendChild(s);
-  }
+
+
+tracksDiv.innerHTML="";
+
+
+for(let i=0;i<count;i++){
+
+
+let div=
+document.createElement("div");
+
+
+div.className="skeleton";
+
+
+tracksDiv.appendChild(div);
+
+
 }
 
-// ===== Highlight =====
-function highlight(text, term){
-  if(!term) return text;
-  const re=new RegExp(`(${term})`,"gi");
-  return text.replace(re,"<mark>$1</mark>");
+
 }
 
-// ===== Prefetch Saavn =====
+
+
+
+
+
+
+// ===============================
+// SAAVN SEARCH
+// ===============================
+
 async function prefetch(key){
-  if(saavnCache[key]) return;
-  try{
-    const res=await fetch(`${SAAVN_API}?query=${encodeURIComponent(key)}&limit=1`);
-    const j=await res.json();
-    saavnCache[key]=j?.data?.results?.[0]?.downloadUrl||[];
-  }catch{ saavnCache[key]=[]; }
+
+
+if(saavnCache[key])
+return;
+
+
+
+try{
+
+
+let res=
+await fetch(
+`${SAAVN_API}?query=${encodeURIComponent(key)}&limit=1`
+);
+
+
+
+let json=
+await res.json();
+
+
+
+saavnCache[key]=
+json?.data?.results?.[0]?.downloadUrl || [];
+
+
+}
+catch{
+
+
+saavnCache[key]=[];
+
 }
 
-// ===== Get best quality =====
-function getBest(urls){if(!urls)return null;return urls.find(u=>u.quality===quality)||urls[0];}
 
-// ===== Load Playlist =====
-document.getElementById("loadBtn").onclick=async()=>{
-  const url=document.getElementById("playlistUrl").value.trim();
-  const id=getPlaylistId(url);
-  if(!id){alert("Invalid playlist URL"); return;}
-  sheet.classList.remove("open");
+}
 
-  loader.style.display="block";
-  showSkeletons(5);
 
-  try{
-    const res=await fetch(`${SPOTIFY_API}?playlist=${id}`);
-    if(!res.ok)throw new Error("Failed to fetch playlist");
-    const j=await res.json();
-    if(!j.tracks || !Array.isArray(j.tracks))throw new Error("No tracks found");
-    document.getElementById("trackCount").textContent=j.tracks.length+" tracks";
 
-    tracksDiv.innerHTML="";
-    for(const t of j.tracks){
-      const key=`${t.title} ${t.artists}`;
-      await prefetch(key);
 
-      const c=document.createElement("div");
-      c.className="card";
-      c.dataset.search=t.title.toLowerCase();
-      c.innerHTML=`<img src="${t.image}">
-        <div class="card-info">
-          <div class="title">${t.title}</div>
-          <div class="meta">${t.artists}</div>
-        </div>
-        <div class="actions">
-          <span class="material-icons play">play_arrow</span>
-          <span class="material-icons down">download</span>
-        </div>`;
-      tracksDiv.appendChild(c);
 
-      // Play button
-      c.querySelector(".play").onclick=()=>{
-        const best=getBest(saavnCache[key]);
-        if(!best)return;
-        if(currentKey===key){
-          if(player.paused){player.play(); c.querySelector(".play").textContent="pause";}
-          else{player.pause(); c.querySelector(".play").textContent="play_arrow";}
-          return;
-        }
-        if(currentBtn)currentBtn.textContent="play_arrow";
-        if(currentCard)currentCard.classList.remove("playing");
 
-        player.src=best.url;
-        player.play();
-        c.querySelector(".play").textContent="pause";
-        c.classList.add("playing");
+function getBest(urls){
 
-        currentKey=key; currentBtn=c.querySelector(".play"); currentCard=c;
-      };
 
-      // Download button
-      c.querySelector(".down").onclick=async()=>{
-        const best=getBest(saavnCache[key]); if(!best)return;
-        const b=await (await fetch(best.url)).blob();
-        const a=document.createElement("a");
-        a.href=URL.createObjectURL(b);
-        a.download=`${key.replace(/[<>:"/\\|?*]/g,"_")}.m4a`;
-        a.click();
-      };
-    }
-    downloadAllBtn.style.display="block";
-  }catch(e){alert("Error loading playlist: "+e.message);}
-  loader.style.display="none";
+if(!urls)
+return null;
+
+
+return urls.find(
+u=>u.quality===quality
+)
+||urls[0];
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// LOAD PLAYLIST
+// ===============================
+
+document
+.getElementById("loadBtn")
+.onclick=async()=>{
+
+
+const url=
+document
+.getElementById("playlistUrl")
+.value
+.trim();
+
+
+
+const id=
+getPlaylistId(url);
+
+
+
+if(!id){
+
+alert(
+"Invalid Spotify playlist URL"
+);
+
+return;
+
+}
+
+
+
+sheet.classList.remove(
+"open"
+);
+
+
+
+loader.style.display="block";
+
+
+showSkeletons(5);
+
+
+
+try{
+
+
+const data=
+await apiFetch(
+`${SPOTIFY_API}?playlist=${encodeURIComponent(id)}`
+);
+
+
+
+if(!data.tracks){
+
+throw new Error(
+"No playlist data received"
+);
+
+}
+
+
+
+document
+.getElementById("trackCount")
+.textContent=
+`${data.tracks.length} tracks`;
+
+
+
+tracksDiv.innerHTML="";
+
+
+
+
+for(const t of data.tracks){
+
+
+
+const key=
+`${t.title} ${t.artists || ""}`;
+
+
+
+await prefetch(key);
+
+
+
+const card=
+document.createElement("div");
+
+
+
+card.className="card";
+
+
+
+card.innerHTML=`
+
+<img src="${t.image || ""}">
+
+
+<div class="card-info">
+
+<div class="title">
+${t.title}
+</div>
+
+
+<div class="meta">
+${t.artists || ""}
+</div>
+
+
+</div>
+
+
+<div class="actions">
+
+
+<span class="material-icons play">
+play_arrow
+</span>
+
+
+<span class="material-icons down">
+download
+</span>
+
+
+</div>
+
+`;
+
+
+
+tracksDiv.appendChild(card);
+
+
+
+
+
+// PLAY
+
+
+card.querySelector(".play")
+.onclick=()=>{
+
+
+const best=
+getBest(saavnCache[key]);
+
+
+
+if(!best){
+
+alert(
+"Audio not available"
+);
+
+return;
+
+}
+
+
+
+
+if(currentKey===key){
+
+
+if(player.paused){
+
+player.play();
+
+card.querySelector(".play")
+.textContent="pause";
+
+}
+
+else{
+
+
+player.pause();
+
+card.querySelector(".play")
+.textContent="play_arrow";
+
+
+}
+
+
+
+return;
+
+
+}
+
+
+
+if(currentBtn)
+currentBtn.textContent=
+"play_arrow";
+
+
+
+if(currentCard)
+currentCard.classList.remove(
+"playing"
+);
+
+
+
+player.src=
+best.url;
+
+
+player.play();
+
+
+
+card.querySelector(".play")
+.textContent=
+"pause";
+
+
+
+card.classList.add(
+"playing"
+);
+
+
+
+currentKey=key;
+
+currentBtn=
+card.querySelector(".play");
+
+currentCard=card;
+
+
 };
 
-// ===== Audio ended =====
-player.onended=()=>{if(currentBtn)currentBtn.textContent="play_arrow"; if(currentCard)currentCard.classList.remove("playing"); currentKey=null; currentBtn=null;};
 
-// ===== Search =====
+
+
+
+
+// DOWNLOAD
+
+
+card.querySelector(".down")
+.onclick=async()=>{
+
+
+const best=
+getBest(saavnCache[key]);
+
+
+
+if(!best){
+
+alert(
+"Download unavailable"
+);
+
+return;
+
+}
+
+
+
+const blob=
+await(
+await fetch(best.url)
+)
+.blob();
+
+
+
+const a=
+document.createElement("a");
+
+
+
+a.href=
+URL.createObjectURL(blob);
+
+
+
+a.download=
+`${key}.m4a`;
+
+
+
+a.click();
+
+
+};
+
+
+
+}
+
+
+
+
+downloadAllBtn.style.display="block";
+
+
+
+}
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Error loading playlist:\n\n"+
+error.message
+);
+
+
+tracksDiv.innerHTML="";
+
+
+}
+
+
+
+loader.style.display="none";
+
+
+};
+
+
+
+
+
+
+// ===============================
+// PLAYER END
+// ===============================
+
+player.onended=()=>{
+
+
+if(currentBtn)
+currentBtn.textContent=
+"play_arrow";
+
+
+if(currentCard)
+currentCard.classList.remove(
+"playing"
+);
+
+
+
+currentKey=null;
+
+
+};
+
+
+
+
+
+
+
+// ===============================
+// SEARCH
+// ===============================
+
 searchInput.oninput=e=>{
-  const q=e.target.value.toLowerCase().trim();
-  document.querySelectorAll(".card").forEach(c=>{
-    const title=c.querySelector(".title").textContent;
-    if(title.toLowerCase().includes(q)){
-      c.style.display="flex";
-      c.querySelector(".title").innerHTML=highlight(title,q);
-    }else c.style.display="none";
-  });
+
+
+const q=
+e.target.value.toLowerCase();
+
+
+
+document
+.querySelectorAll(".card")
+.forEach(card=>{
+
+
+const title=
+card
+.querySelector(".title")
+.textContent
+.toLowerCase();
+
+
+
+card.style.display=
+title.includes(q)
+?"flex"
+:"none";
+
+
+});
+
+
 };
 
-// ===== Download All =====
+
+
+
+
+
+// ===============================
+// DOWNLOAD ALL
+// ===============================
+
 downloadAllBtn.onclick=async()=>{
-  const entries=Object.entries(saavnCache);
-  const progress=document.getElementById("progress");
-  const pBar=document.getElementById("pBar");
-  const pText=document.getElementById("pText");
-  progress.classList.add("show");
 
-  for(let i=0;i<entries.length;i++){
-    const [k,u]=entries[i];
-    const best=getBest(u); if(!best) continue;
-    const b=await (await fetch(best.url)).blob();
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(b);
-    a.download=`${k.replace(/[<>:"/\\|?*]/g,"_")}.m4a`;
-    a.click();
 
-    pText.textContent=`${i+1} / ${entries.length}`;
-    pBar.style.width=((i+1)/entries.length*100)+"%";
-    await new Promise(r=>setTimeout(r,700));
-  }
-  progress.classList.remove("show");
+const entries=
+Object.entries(saavnCache);
+
+
+
+const progress=
+document.getElementById("progress");
+
+
+const pText=
+document.getElementById("pText");
+
+
+const pBar=
+document.getElementById("pBar");
+
+
+
+progress.classList.add(
+"show"
+);
+
+
+
+for(let i=0;i<entries.length;i++){
+
+
+const [name,urls]=entries[i];
+
+
+const best=
+getBest(urls);
+
+
+
+if(!best)
+continue;
+
+
+
+const blob=
+await(
+await fetch(best.url)
+)
+.blob();
+
+
+
+const a=
+document.createElement("a");
+
+
+a.href=
+URL.createObjectURL(blob);
+
+
+a.download=
+`${name}.m4a`;
+
+
+a.click();
+
+
+
+pText.textContent=
+`${i+1} / ${entries.length}`;
+
+
+
+pBar.style.width=
+`${((i+1)/entries.length)*100}%`;
+
+
+
+await new Promise(
+r=>setTimeout(r,500)
+);
+
+
+}
+
+
+
+progress.classList.remove(
+"show"
+);
+
+
 };
+
+
+
 </script>
+
 </body>
 </html>
