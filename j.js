@@ -9,7 +9,7 @@ const songs = [
     name:"Vaathi Coming",
     artist:"Anirudh Ravichander",
     img:"images/vaathi.jpg",
-    file:""
+    file:"https://github.com/Kannan2020k/Song/blob/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
 },
 
 
@@ -17,7 +17,7 @@ const songs = [
     name:"Arabic Kuthu",
     artist:"Anirudh Ravichander",
     img:"images/arabic.jpg",
-    file:"songs/arabic.mp3"
+    file:"https://github.com/Kannan2020k/Song/blob/main/songs/Vaanganna%20Vanakkanganna%20-%20G.%20V.%20Prakash%2C%20Vijay%2C%20Santhanam.m4a"
 },
 
 
