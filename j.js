@@ -4,43 +4,13 @@
 
 
 const songs = [
-
-{
-    name:"Vaathi Coming",
-    artist:"Anirudh Ravichander",
-    img:"images/vaathi.jpg",
-    file:"https://github.com/Kannan2020k/Song/blob/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
-},
-    
+   
 {
     name: "Oru Naalil",
     artist: "Yuvan Shankar Raja",
-    img: "images/oru-naalil.jpg",
+    img: "https://raw.githubusercontent.com/Kannan2020k/Song/main/img/oru.jpeg",
     file: "https://raw.githubusercontent.com/Kannan2020k/Song/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
 },
-
-
-{
-    name:"Arabic Kuthu",
-    artist:"Anirudh Ravichander",
-    img:"images/arabic.jpg",
-    file:"https://github.com/Kannan2020k/Song/blob/main/songs/Vaanganna%20Vanakkanganna%20-%20G.%20V.%20Prakash%2C%20Vijay%2C%20Santhanam.m4a"
-},
-    
- {
-  "name": "Oru Naalil",
-  "artist": "Yuvan Shankar Raja",
-  "file": "https://raw.githubusercontent.com/Kannan2020k/Song/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
-}
-   
-
-
-{
-    name:"Enjoy Enjaami",
-    artist:"Dhee & Arivu",
-    img:"images/enjaami.jpg",
-    file:"https://raw.githubusercontent.com/Kannan2020k/Song/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
-}
 
 ];
 
