@@ -1,570 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Playlist Downloader</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<title>Spotify Clone Premium</title>
 
-<style>
 
-:root{
- --bg:#121212;
- --text:#ffffff;
- --card:#242424;
- --hover:#2b2b2b;
- --primary:#7C4DFF;
- --meta:#aaa;
- --border:#444;
- --bar:#333;
-}
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 
-body[data-theme="light"]{
- --bg:#fafafa;
- --text:#222;
- --card:#ffffff;
- --hover:#eeeeee;
- --primary:#6200ea;
- --meta:#555;
- --border:#ccc;
- --bar:#ccc;
-}
+<!-- Font Awesome -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 
-*{
- box-sizing:border-box;
-}
-
-
-body{
- margin:0;
- font-family:'Varela Round',sans-serif;
- background:var(--bg);
- color:var(--text);
- transition:.3s;
-}
-
-
-.container{
- max-width:900px;
- margin:auto;
- padding:20px 20px 180px;
-}
-
-
-
-/* HEADER */
-
-.header{
- display:flex;
- justify-content:space-between;
- align-items:center;
- flex-wrap:wrap;
-}
-
-
-.header-title{
- font-size:2rem;
- font-weight:bold;
- color:var(--primary);
-}
-
-
-.header-sub{
- margin-top:5px;
- color:var(--meta);
-}
-
-
-
-.quality-btn{
-
- background:transparent;
- border:1px solid var(--border);
- color:var(--meta);
-
- padding:7px 15px;
-
- border-radius:20px;
-
- cursor:pointer;
-
-}
-
-
-.quality-btn.active{
-
- border-color:var(--primary);
- color:var(--primary);
-
-}
-
-
-
-/* MODE BUTTON */
-
-#modeToggle{
-
- position:fixed;
-
- top:20px;
- right:20px;
-
- width:50px;
- height:50px;
-
- border-radius:50%;
-
- border:none;
-
- cursor:pointer;
-
- background:var(--card);
- color:var(--text);
-
- font-size:22px;
-
- z-index:999;
-
- box-shadow:0 4px 10px #0005;
-
-}
-
-
-
-
-/* SEARCH */
-
-.search{
-
- width:100%;
-
- margin:20px 0;
-
- padding:12px 18px;
-
- border-radius:25px;
-
- border:1px solid var(--border);
-
- background:var(--card);
-
- color:var(--text);
-
- font-size:16px;
-
-}
-
-
-
-/* LOADER */
-
-.loader{
-
- display:none;
-
- margin:20px auto;
-
- width:40px;
-
- height:40px;
-
- border-radius:50%;
-
- border:5px solid #333;
-
- border-top-color:var(--primary);
-
- animation:spin 1s linear infinite;
-
-}
-
-
-@keyframes spin{
-
-100%{
-transform:rotate(360deg);
-}
-
-}
-
-
-
-/* TRACK CARD */
-
-.card{
-
- display:flex;
-
- align-items:center;
-
- gap:12px;
-
- background:var(--card);
-
- padding:12px;
-
- margin-bottom:12px;
-
- border-radius:15px;
-
- transition:.3s;
-
-}
-
-
-.card:hover{
-
- background:var(--hover);
-
-}
-
-
-.card.playing{
-
- outline:2px solid var(--primary);
-
-}
-
-
-.card img{
-
- width:60px;
-
- height:60px;
-
- object-fit:cover;
-
- border-radius:12px;
-
-}
-
-
-
-.card-info{
-
- flex:1;
-
- overflow:hidden;
-
-}
-
-
-.title{
-
- font-weight:bold;
-
- white-space:nowrap;
-
- overflow:hidden;
-
- text-overflow:ellipsis;
-
-}
-
-
-.meta{
-
- color:var(--meta);
-
- font-size:.85rem;
-
-}
-
-
-
-.actions{
-
- display:flex;
-
- gap:12px;
-
-}
-
-
-.actions span{
-
- cursor:pointer;
-
- color:var(--primary);
-
-}
-
-
-
-/* FLOAT BUTTONS */
-
-
-.fab,
-.download-all{
-
- position:fixed;
-
- right:20px;
-
- width:56px;
-
- height:56px;
-
- border-radius:50%;
-
- border:none;
-
- background:linear-gradient(
- 45deg,
- #7C4DFF,
- #9a6bff
- );
-
- color:white;
-
- font-size:28px;
-
- cursor:pointer;
-
-}
-
-
-
-.fab{
-
- bottom:20px;
-
-}
-
-
-
-.download-all{
-
- bottom:90px;
-
- display:none;
-
-}
-
-
-
-/* BOTTOM SHEET */
-
-
-.sheet{
-
- position:fixed;
-
- bottom:0;
-
- left:0;
-
- width:100%;
-
- padding:25px;
-
- background:var(--card);
-
- border-radius:20px 20px 0 0;
-
- transform:translateY(100%);
-
- transition:.3s;
-
-}
-
-
-
-.sheet.open{
-
- transform:translateY(0);
-
-}
-
-
-
-.sheet input,
-.sheet button{
-
- width:100%;
-
- padding:14px;
-
- margin-bottom:10px;
-
- border-radius:25px;
-
- border:none;
-
- background:var(--bg);
-
- color:var(--text);
-
-}
-
-
-
-/* PROGRESS */
-
-
-.progress{
-
- position:fixed;
-
- inset:0;
-
- background:#0008;
-
- display:none;
-
- justify-content:center;
-
- align-items:center;
-
-}
-
-
-.progress.show{
-
- display:flex;
-
-}
-
-
-.box{
-
- width:300px;
-
- background:var(--card);
-
- padding:25px;
-
- border-radius:20px;
-
- text-align:center;
-
-}
-
-
-.bar{
-
- height:10px;
-
- background:var(--bar);
-
- overflow:hidden;
-
- border-radius:10px;
-
-}
-
-
-.bar div{
-
- height:100%;
-
- width:0;
-
- background:linear-gradient(
- 90deg,
- #7C4DFF,
- #9a6bff
- );
-
-}
-
-
-
-/* SKELETON */
-
-
-.skeleton{
-
- height:85px;
-
- background:var(--card);
-
- border-radius:15px;
-
- margin-bottom:12px;
-
- animation:pulse 1s infinite alternate;
-
-}
-
-
-@keyframes pulse{
-
-from{
-opacity:.5;
-}
-
-to{
-opacity:1;
-}
-
-}
-
-</style>
+<!-- CSS -->
+<link rel="stylesheet" href="c.css">
 
 </head>
+
+
+
 <body>
 
 
-<div class="container">
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
 
 
-<div class="header">
+<div class="logo">
 
-<div>
+<i class="fab fa-spotify"></i>
 
-<div class="header-title">
-Playlist Downloader
-</div>
-
-
-<div class="header-sub" id="trackCount">
-No playlist loaded
-</div>
-
+<span>Spotify</span>
 
 </div>
 
 
-<div>
 
-<button class="quality-btn active" data-q="320kbps">
-320
-</button>
+<nav>
 
 
-<button class="quality-btn" data-q="160kbps">
-160
-</button>
+<a href="#" class="active">
+
+<i class="fas fa-house"></i>
+
+<span>Home</span>
+
+</a>
 
 
-<button class="quality-btn" data-q="96kbps">
-96
-</button>
 
+<a href="#" onclick="focusSearch()">
+
+<i class="fas fa-magnifying-glass"></i>
+
+<span>Search</span>
+
+</a>
+
+
+
+
+<a href="#" onclick="showLiked()">
+
+<i class="fas fa-heart"></i>
+
+<span>Liked Songs</span>
+
+</a>
+
+
+
+
+<a href="#">
+
+<i class="fas fa-list"></i>
+
+<span>Playlist</span>
+
+</a>
+
+
+
+</nav>
+
+
+
+<div id="playlist">
 
 </div>
 
-</div>
 
+
+</aside>
+
+
+
+
+
+
+
+
+
+<!-- MAIN -->
+
+
+<main class="main">
+
+
+<header class="topbar">
+
+
+<div class="search-box">
+
+
+<i class="fas fa-search"></i>
 
 
 <input
-class="search"
 id="search"
-placeholder="Search song title">
-
-
-
-<div class="loader" id="loader"></div>
-
-
-
-<div id="tracks"></div>
+type="text"
+placeholder="Search songs..."
+onkeyup="searchSongs()">
 
 
 </div>
@@ -572,992 +135,280 @@ placeholder="Search song title">
 
 
 
-<button class="download-all" id="downloadAll">
-⬇
+<div class="profile">
+
+
+<img
+src="https://i.pravatar.cc/100"
+alt="User Profile"
+loading="lazy"
+referrerpolicy="no-referrer">
+
+
+</div>
+
+
+
+</header>
+
+
+
+
+
+
+
+<section>
+
+
+<h2 class="heading">
+
+Popular Songs
+
+</h2>
+
+
+
+<div class="songs" id="songs">
+
+</div>
+
+
+
+</section>
+
+
+
+</main>
+
+
+
+
+
+
+
+
+
+<!-- AUDIO -->
+
+<audio id="audio"></audio>
+
+
+
+
+
+
+
+
+
+
+<!-- PLAYER -->
+
+<footer class="player">
+
+
+
+
+
+<div class="left-player">
+
+
+<img
+id="cover"
+src="https://via.placeholder.com/70"
+alt="Album Cover">
+
+
+
+<div>
+
+
+<h3 id="title">
+Select a Song
+</h3>
+
+
+
+<p id="artist">
+Artist
+</p>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="center-player">
+
+
+<div class="controls">
+
+
+
+<button 
+aria-label="Previous Song"
+onclick="previous()">
+
+<i class="fas fa-backward"></i>
+
 </button>
 
 
-<button class="fab" id="fab">
-+
+
+
+
+
+
+<button
+id="play"
+class="play-btn"
+aria-label="Play Pause"
+onclick="playPause()">
+
+
+<i class="fas fa-play"></i>
+
+
 </button>
 
 
-<button id="modeToggle">
-🌙
+
+
+
+
+
+
+<button
+aria-label="Next Song"
+onclick="next()">
+
+
+<i class="fas fa-forward"></i>
+
+
 </button>
 
 
 
 
-<div class="sheet" id="sheet">
+
+
+
+
+<button
+id="likeBtn"
+aria-label="Like Song"
+onclick="like()">
+
+
+
+<i class="far fa-heart"></i>
+
+
+
+</button>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="time">
+
+
+<span id="currentTime">
+0:00
+</span>
+
+
+
 
 <input
-id="playlistUrl"
-placeholder="Spotify playlist URL">
+type="range"
+id="progress"
+min="0"
+max="100"
+value="0">
 
 
-<button id="loadBtn">
-Load Playlist
-</button>
 
 
-</div>
 
-
-
-
-<div class="progress" id="progress">
-
-<div class="box">
-
-<b id="pText">
-0 / 0
-</b>
-
-<div class="bar">
-<div id="pBar"></div>
-</div>
-
-</div>
-
-</div>
-
-
-<audio id="player"></audio>
-
-
-<!-- Part 3B JavaScript goes here -->
-  <script>
-
-// ===============================
-// API CONFIG
-// ===============================
-
-const SPOTIFY_API =
-"https://spotify-api-6yog.vercel.app/api/scrape";
-
-const SAAVN_API =
-"https://jiosavan-api-with-playlist.vercel.app/api/search/songs";
-
-
-
-// ===============================
-// ELEMENTS
-// ===============================
-
-const tracksDiv=document.getElementById("tracks");
-const loader=document.getElementById("loader");
-const player=document.getElementById("player");
-
-const searchInput=document.getElementById("search");
-
-const downloadAllBtn=
-document.getElementById("downloadAll");
-
-const sheet=
-document.getElementById("sheet");
-
-const fab=
-document.getElementById("fab");
-
-
-let quality="320kbps";
-
-let saavnCache={};
-
-let currentKey=null;
-let currentBtn=null;
-let currentCard=null;
-
-
-
-
-// ===============================
-// THEME
-// ===============================
-
-const modeToggle=
-document.getElementById("modeToggle");
-
-
-let theme=
-localStorage.getItem("theme") || "dark";
-
-
-document.body.setAttribute(
-"data-theme",
-theme
-);
-
-
-modeToggle.textContent=
-theme==="dark" ? "🌞":"🌙";
-
-
-
-modeToggle.onclick=()=>{
-
-theme=
-document.body.getAttribute("data-theme")
-==="dark"
-?"light"
-:"dark";
-
-
-document.body.setAttribute(
-"data-theme",
-theme
-);
-
-
-localStorage.setItem(
-"theme",
-theme
-);
-
-
-modeToggle.textContent=
-theme==="dark"
-?"🌞"
-:"🌙";
-
-};
-
-
-
-
-
-// ===============================
-// QUALITY BUTTONS
-// ===============================
-
-document
-.querySelectorAll(".quality-btn")
-.forEach(btn=>{
-
-
-btn.onclick=()=>{
-
-
-document
-.querySelectorAll(".quality-btn")
-.forEach(x=>
-x.classList.remove("active")
-);
-
-
-
-btn.classList.add("active");
-
-
-quality=
-btn.dataset.q;
-
-
-};
-
-
-});
-
-
-
-
-
-// ===============================
-// SHEET
-// ===============================
-
-fab.onclick=()=>{
-
-sheet.classList.add("open");
-
-};
-
-
-
-
-
-// ===============================
-// PLAYLIST ID FIX
-// ===============================
-
-function getPlaylistId(url){
-
-
-try{
-
-
-url=url.trim();
-
-
-
-if(url.startsWith(
-"spotify:playlist:"
-)){
-
-
-return url.split(":")[2];
-
-
-}
-
-
-
-
-const u=
-new URL(url);
-
-
-
-const match=
-u.pathname.match(
-/playlist\/([a-zA-Z0-9]+)/
-);
-
-
-
-return match ? match[1] : null;
-
-
-
-}
-catch{
-
-return null;
-
-}
-
-
-}
-
-
-
-
-
-// ===============================
-// FETCH FIX
-// ===============================
-
-async function apiFetch(url){
-
-
-const controller=
-new AbortController();
-
-
-
-const timer=setTimeout(()=>{
-
-controller.abort();
-
-},15000);
-
-
-
-
-try{
-
-
-const response=
-await fetch(url,{
-
-signal:controller.signal,
-
-headers:{
-"Accept":"application/json"
-}
-
-});
-
-
-
-clearTimeout(timer);
-
-
-
-if(!response.ok){
-
-
-const text=
-await response.text();
-
-
-throw new Error(
-`Server ${response.status}: ${text.substring(0,120)}`
-);
-
-
-}
-
-
-
-return await response.json();
-
-
-
-}
-catch(err){
-
-
-clearTimeout(timer);
-
-
-
-if(err.name==="AbortError"){
-
-throw new Error(
-"API timeout"
-);
-
-}
-
-
-
-if(err.message.includes(
-"Failed to fetch"
-)){
-
-
-throw new Error(
-"Cannot connect API. Check CORS or server status."
-);
-
-
-}
-
-
-
-throw err;
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// SKELETON
-// ===============================
-
-function showSkeletons(count){
-
-
-tracksDiv.innerHTML="";
-
-
-for(let i=0;i<count;i++){
-
-
-let div=
-document.createElement("div");
-
-
-div.className="skeleton";
-
-
-tracksDiv.appendChild(div);
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// SAAVN SEARCH
-// ===============================
-
-async function prefetch(key){
-
-
-if(saavnCache[key])
-return;
-
-
-
-try{
-
-
-let res=
-await fetch(
-`${SAAVN_API}?query=${encodeURIComponent(key)}&limit=1`
-);
-
-
-
-let json=
-await res.json();
-
-
-
-saavnCache[key]=
-json?.data?.results?.[0]?.downloadUrl || [];
-
-
-}
-catch{
-
-
-saavnCache[key]=[];
-
-}
-
-
-}
-
-
-
-
-
-
-function getBest(urls){
-
-
-if(!urls)
-return null;
-
-
-return urls.find(
-u=>u.quality===quality
-)
-||urls[0];
-
-
-}
-
-
-
-
-
-
-
-// ===============================
-// LOAD PLAYLIST
-// ===============================
-
-document
-.getElementById("loadBtn")
-.onclick=async()=>{
-
-
-const url=
-document
-.getElementById("playlistUrl")
-.value
-.trim();
-
-
-
-const id=
-getPlaylistId(url);
-
-
-
-if(!id){
-
-alert(
-"Invalid Spotify playlist URL"
-);
-
-return;
-
-}
-
-
-
-sheet.classList.remove(
-"open"
-);
-
-
-
-loader.style.display="block";
-
-
-showSkeletons(5);
-
-
-
-try{
-
-
-const data=
-await apiFetch(
-`${SPOTIFY_API}?playlist=${encodeURIComponent(id)}`
-);
-
-
-
-if(!data.tracks){
-
-throw new Error(
-"No playlist data received"
-);
-
-}
-
-
-
-document
-.getElementById("trackCount")
-.textContent=
-`${data.tracks.length} tracks`;
-
-
-
-tracksDiv.innerHTML="";
-
-
-
-
-for(const t of data.tracks){
-
-
-
-const key=
-`${t.title} ${t.artists || ""}`;
-
-
-
-await prefetch(key);
-
-
-
-const card=
-document.createElement("div");
-
-
-
-card.className="card";
-
-
-
-card.innerHTML=`
-
-<img src="${t.image || ""}">
-
-
-<div class="card-info">
-
-<div class="title">
-${t.title}
-</div>
-
-
-<div class="meta">
-${t.artists || ""}
-</div>
-
-
-</div>
-
-
-<div class="actions">
-
-
-<span class="material-icons play">
-play_arrow
+<span id="duration">
+0:00
 </span>
 
 
-<span class="material-icons down">
-download
-</span>
+
+</div>
+
+
+
 
 
 </div>
 
-`;
 
 
 
-tracksDiv.appendChild(card);
 
 
 
 
 
-// PLAY
+<div class="right-player">
 
 
-card.querySelector(".play")
-.onclick=()=>{
+<i class="fas fa-volume-up"></i>
 
 
-const best=
-getBest(saavnCache[key]);
+<input
+id="volume"
+type="range"
+min="0"
+max="1"
+step="0.1"
+value="1">
 
 
+</div>
 
-if(!best){
 
-alert(
-"Audio not available"
-);
 
-return;
 
-}
 
+</footer>
 
 
 
-if(currentKey===key){
 
 
-if(player.paused){
 
-player.play();
 
-card.querySelector(".play")
-.textContent="pause";
 
-}
 
-else{
+<!-- JAVASCRIPT -->
 
+<script src="j.js"></script>
 
-player.pause();
-
-card.querySelector(".play")
-.textContent="play_arrow";
-
-
-}
-
-
-
-return;
-
-
-}
-
-
-
-if(currentBtn)
-currentBtn.textContent=
-"play_arrow";
-
-
-
-if(currentCard)
-currentCard.classList.remove(
-"playing"
-);
-
-
-
-player.src=
-best.url;
-
-
-player.play();
-
-
-
-card.querySelector(".play")
-.textContent=
-"pause";
-
-
-
-card.classList.add(
-"playing"
-);
-
-
-
-currentKey=key;
-
-currentBtn=
-card.querySelector(".play");
-
-currentCard=card;
-
-
-};
-
-
-
-
-
-
-// DOWNLOAD
-
-
-card.querySelector(".down")
-.onclick=async()=>{
-
-
-const best=
-getBest(saavnCache[key]);
-
-
-
-if(!best){
-
-alert(
-"Download unavailable"
-);
-
-return;
-
-}
-
-
-
-const blob=
-await(
-await fetch(best.url)
-)
-.blob();
-
-
-
-const a=
-document.createElement("a");
-
-
-
-a.href=
-URL.createObjectURL(blob);
-
-
-
-a.download=
-`${key}.m4a`;
-
-
-
-a.click();
-
-
-};
-
-
-
-}
-
-
-
-
-downloadAllBtn.style.display="block";
-
-
-
-}
-catch(error){
-
-
-console.error(error);
-
-
-alert(
-"Error loading playlist:\n\n"+
-error.message
-);
-
-
-tracksDiv.innerHTML="";
-
-
-}
-
-
-
-loader.style.display="none";
-
-
-};
-
-
-
-
-
-
-// ===============================
-// PLAYER END
-// ===============================
-
-player.onended=()=>{
-
-
-if(currentBtn)
-currentBtn.textContent=
-"play_arrow";
-
-
-if(currentCard)
-currentCard.classList.remove(
-"playing"
-);
-
-
-
-currentKey=null;
-
-
-};
-
-
-
-
-
-
-
-// ===============================
-// SEARCH
-// ===============================
-
-searchInput.oninput=e=>{
-
-
-const q=
-e.target.value.toLowerCase();
-
-
-
-document
-.querySelectorAll(".card")
-.forEach(card=>{
-
-
-const title=
-card
-.querySelector(".title")
-.textContent
-.toLowerCase();
-
-
-
-card.style.display=
-title.includes(q)
-?"flex"
-:"none";
-
-
-});
-
-
-};
-
-
-
-
-
-
-// ===============================
-// DOWNLOAD ALL
-// ===============================
-
-downloadAllBtn.onclick=async()=>{
-
-
-const entries=
-Object.entries(saavnCache);
-
-
-
-const progress=
-document.getElementById("progress");
-
-
-const pText=
-document.getElementById("pText");
-
-
-const pBar=
-document.getElementById("pBar");
-
-
-
-progress.classList.add(
-"show"
-);
-
-
-
-for(let i=0;i<entries.length;i++){
-
-
-const [name,urls]=entries[i];
-
-
-const best=
-getBest(urls);
-
-
-
-if(!best)
-continue;
-
-
-
-const blob=
-await(
-await fetch(best.url)
-)
-.blob();
-
-
-
-const a=
-document.createElement("a");
-
-
-a.href=
-URL.createObjectURL(blob);
-
-
-a.download=
-`${name}.m4a`;
-
-
-a.click();
-
-
-
-pText.textContent=
-`${i+1} / ${entries.length}`;
-
-
-
-pBar.style.width=
-`${((i+1)/entries.length)*100}%`;
-
-
-
-await new Promise(
-r=>setTimeout(r,500)
-);
-
-
-}
-
-
-
-progress.classList.remove(
-"show"
-);
-
-
-};
-
-
-
-</script>
 
 </body>
+
 </html>
