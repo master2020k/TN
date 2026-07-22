@@ -1,37 +1,22 @@
 // =========================
-// SONG DATABASE
+// SONG DATABASE FROM GITHUB
 // =========================
 
-
-const songs = [
-   
-{
-    name: "Oru Naalil",
-    artist: "Yuvan Shankar Raja",
-    img: "https://raw.githubusercontent.com/Kannan2020k/Song/main/img/oru.jpeg",
-    file: "https://raw.githubusercontent.com/Kannan2020k/Song/main/songs/Oru-Naalil---It-All-Comes-Down-To-this!.mp3"
-},
-
-];
-
-
+let songs = [];
 
 
 // =========================
 // PLAYLIST
 // =========================
 
+let playlist = [
 
-const playlist=[
-
-{
-    name:"Tamil Hits",
-    songs:[0,1,2]
-}
+    {
+        name:"Tamil Hits",
+        songs:[]
+    }
 
 ];
-
-
 
 
 
@@ -39,37 +24,372 @@ const playlist=[
 // ELEMENTS
 // =========================
 
+const audio = document.getElementById("audio");
 
-const audio=document.getElementById("audio");
+const songBox = document.getElementById("songs");
 
-const songBox=document.getElementById("songs");
+const title = document.getElementById("title");
 
-const title=document.getElementById("title");
+const artist = document.getElementById("artist");
 
-const artist=document.getElementById("artist");
+const cover = document.getElementById("cover");
 
-const cover=document.getElementById("cover");
+const playBtn = document.getElementById("play");
 
-const playBtn=document.getElementById("play");
+const likeBtn = document.getElementById("likeBtn");
 
-const likeBtn=document.getElementById("likeBtn");
+const progress = document.getElementById("progress");
 
-const progress=document.getElementById("progress");
+const volume = document.getElementById("volume");
 
-const volume=document.getElementById("volume");
+const playlistBox = document.getElementById("playlist");
 
-const playlistBox=document.getElementById("playlist");
+const currentTime = document.getElementById("currentTime");
 
-const currentTime=document.getElementById("currentTime");
-
-const duration=document.getElementById("duration");
-
+const duration = document.getElementById("duration");
 
 
-let current=0;
+let current = 0;
 
 
 
+// =========================
+// LOAD SONGS FROM GITHUB
+// =========================
+
+
+const githubAPI =
+"https://api.github.com/repos/master2020k/spotifymode/contents/songs";
+
+
+
+fetch(githubAPI)
+
+.then(response=>response.json())
+
+.then(files=>{
+
+
+    songs = files
+
+    .filter(file =>
+
+        file.name.endsWith(".mp3") ||
+
+        file.name.endsWith(".m4a")
+
+    )
+
+    .map(file=>{
+
+
+        let songName = file.name
+
+        .replace(".mp3","")
+
+        .replace(".m4a","")
+
+        .replaceAll("-"," ");
+
+
+
+        return {
+
+            name:songName,
+
+            artist:"Unknown",
+
+            file:file.download_url,
+
+            img:
+
+            "https://raw.githubusercontent.com/master2020k/spotifymode/main/img/"
+
+            +
+
+            file.name
+
+            .replace(".mp3",".jpeg")
+
+            .replace(".m4a",".jpeg")
+
+        };
+
+
+    });
+
+
+
+    playlist[0].songs =
+    songs.map((song,index)=>index);
+
+
+
+    loadSongs();
+
+    loadPlaylist();
+
+
+
+})
+
+.catch(error=>{
+
+
+console.log(
+"GitHub Error:",
+error
+);
+
+
+});
+
+
+
+
+
+
+// =========================
+// LOAD SONG CARDS
+// =========================
+
+
+function loadSongs(){
+
+
+songBox.innerHTML="";
+
+
+songs.forEach((song,index)=>{
+
+
+songBox.innerHTML += `
+
+
+<div class="card"
+data-index="${index}"
+onclick="playSong(${index})">
+
+
+<img loading="lazy"
+src="${song.img}">
+
+
+<h3>${song.name}</h3>
+
+
+<p>${song.artist}</p>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+
+// =========================
+// PLAY SONG
+// =========================
+
+
+async function playSong(index){
+
+
+current=index;
+
+
+let song=songs[index];
+
+
+audio.src=song.file;
+
+
+title.innerText=song.name;
+
+
+artist.innerText=song.artist;
+
+
+cover.src=song.img;
+
+
+
+try{
+
+
+await audio.play();
+
+
+playBtn.innerHTML=
+
+`
+<i class="fa-solid fa-pause"></i>
+`;
+
+
+}
+
+catch(error){
+
+
+console.log(
+"Play error:",
+error
+);
+
+
+}
+
+
+
+updateLikeButton();
+
+highlightSong();
+
+
+}
+
+
+
+
+
+// =========================
+// PLAY PAUSE
+// =========================
+
+
+function playPause(){
+
+
+if(!audio.src){
+
+
+playSong(0);
+
+
+return;
+
+
+}
+
+
+
+if(audio.paused){
+
+
+audio.play();
+
+
+playBtn.innerHTML=
+
+`
+<i class="fa-solid fa-pause"></i>
+`;
+
+
+}
+
+else{
+
+
+audio.pause();
+
+
+playBtn.innerHTML=
+
+`
+<i class="fa-solid fa-play"></i>
+`;
+
+
+}
+
+
+}
+
+
+
+
+
+// =========================
+// NEXT
+// =========================
+
+
+function next(){
+
+
+current++;
+
+
+if(current>=songs.length){
+
+
+current=0;
+
+
+}
+
+
+playSong(current);
+
+
+}
+
+
+
+
+
+
+// =========================
+// PREVIOUS
+// =========================
+
+
+function previous(){
+
+
+current--;
+
+
+if(current<0){
+
+
+current=songs.length-1;
+
+
+}
+
+
+playSong(current);
+
+
+}
+
+
+
+
+
+
+// AUTO NEXT
+
+audio.onended=function(){
+
+
+next();
+
+
+};
 
 
 
