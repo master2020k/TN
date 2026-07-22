@@ -1,5 +1,5 @@
 // =========================
-// SONG DATABASE FROM GITHUB
+// SONG DATABASE
 // =========================
 
 let songs = [];
@@ -10,12 +10,10 @@ let songs = [];
 // =========================
 
 let playlist = [
-
     {
         name:"Tamil Hits",
         songs:[]
     }
-
 ];
 
 
@@ -36,17 +34,7 @@ const cover = document.getElementById("cover");
 
 const playBtn = document.getElementById("play");
 
-const likeBtn = document.getElementById("likeBtn");
-
-const progress = document.getElementById("progress");
-
-const volume = document.getElementById("volume");
-
 const playlistBox = document.getElementById("playlist");
-
-const currentTime = document.getElementById("currentTime");
-
-const duration = document.getElementById("duration");
 
 
 let current = 0;
@@ -54,92 +42,165 @@ let current = 0;
 
 
 // =========================
-// LOAD SONGS FROM GITHUB
+// GET AUTO IMAGE + ARTIST
+// =========================
+
+async function getSongDetails(songName){
+
+
+    try{
+
+
+        let response = await fetch(
+
+        `https://itunes.apple.com/search?term=${encodeURIComponent(songName)}&media=music&limit=1`
+
+        );
+
+
+        let data = await response.json();
+
+
+
+        if(data.results.length > 0){
+
+
+            let result = data.results[0];
+
+
+            return {
+
+
+                artist: result.artistName,
+
+
+                img:
+
+                result.artworkUrl100
+
+                .replace(
+                    "100x100",
+                    "600x600"
+                )
+
+
+            };
+
+
+        }
+
+
+    }
+
+
+    catch(error){
+
+
+        console.log(
+            "Image Error:",
+            error
+        );
+
+
+    }
+
+
+
+
+    return {
+
+
+        artist:"Unknown",
+
+
+        img:"img/default.jpg"
+
+
+    };
+
+
+}
+
+
+
+
+
+
+// =========================
+// LOAD FROM GITHUB
 // =========================
 
 
 const githubAPI =
+
 "https://api.github.com/repos/master2020k/spotifymode/contents/songs";
 
 
 
-fetch(githubAPI)
-
-.then(response=>response.json())
-
-.then(files=>{
 
 
-    songs = files
-
-    .filter(file =>
-
-        file.name.endsWith(".mp3") ||
-
-        file.name.endsWith(".m4a")
-
-    )
-
-    .map(file=>{
-
-
-        let songName = file.name
-
-        .replace(".mp3","")
-
-        .replace(".m4a","")
-
-        .replaceAll("-"," ");
+async function loadGithubSongs(){
 
 
 
-        return {
-
-            name:songName,
-
-            artist:"Unknown",
-
-            file:file.download_url,
-
-            img:
-
-            "https://raw.githubusercontent.com/master2020k/spotifymode/main/img/"
-
-            +
-
-            file.name
-
-            .replace(".mp3",".jpeg")
-
-            .replace(".m4a",".jpeg")
-
-        };
+try{
 
 
-    });
+let response = await fetch(githubAPI);
+
+
+let files = await response.json();
 
 
 
-    playlist[0].songs =
-    songs.map((song,index)=>index);
+
+songs = files
+
+
+.filter(file =>
+
+
+file.name.endsWith(".mp3") ||
+
+file.name.endsWith(".m4a")
+
+
+)
+
+
+.map(file=>{
+
+
+let songName = file.name
+
+
+.replace(".mp3","")
+
+.replace(".m4a","")
+
+.replaceAll("-"," ");
 
 
 
-    loadSongs();
 
-    loadPlaylist();
-
+return {
 
 
-})
-
-.catch(error=>{
+name:songName,
 
 
-console.log(
-"GitHub Error:",
-error
-);
+artist:"Loading...",
+
+
+file:file.download_url,
+
+
+img:"img/default.jpg"
+
+
+
+};
+
 
 
 });
@@ -149,8 +210,76 @@ error
 
 
 
+// GET DETAILS
+
+for(let song of songs){
+
+
+let details = await getSongDetails(song.name);
+
+
+
+song.artist = details.artist;
+
+
+song.img = details.img;
+
+
+
+}
+
+
+
+
+
+
+playlist[0].songs =
+
+songs.map(
+(song,index)=>index
+);
+
+
+
+
+
+loadSongs();
+
+
+loadPlaylist();
+
+
+
+}
+
+catch(error){
+
+
+console.log(
+"Github Error:",
+error
+);
+
+
+}
+
+
+
+}
+
+
+
+
+loadGithubSongs();
+
+
+
+
+
+
+
 // =========================
-// LOAD SONG CARDS
+// SONG CARDS
 // =========================
 
 
@@ -160,6 +289,7 @@ function loadSongs(){
 songBox.innerHTML="";
 
 
+
 songs.forEach((song,index)=>{
 
 
@@ -167,12 +297,19 @@ songBox.innerHTML += `
 
 
 <div class="card"
+
 data-index="${index}"
+
 onclick="playSong(${index})">
 
 
+
 <img loading="lazy"
-src="${song.img}">
+
+src="${song.img}"
+
+onerror="this.src='img/default.jpg'">
+
 
 
 <h3>${song.name}</h3>
@@ -181,16 +318,20 @@ src="${song.img}">
 <p>${song.artist}</p>
 
 
+
 </div>
 
 
+
 `;
+
 
 
 });
 
 
 }
+
 
 
 
@@ -211,7 +352,9 @@ current=index;
 let song=songs[index];
 
 
+
 audio.src=song.file;
+
 
 
 title.innerText=song.name;
@@ -230,11 +373,15 @@ try{
 await audio.play();
 
 
-playBtn.innerHTML=
+
+playBtn.innerHTML =
 
 `
+
 <i class="fa-solid fa-pause"></i>
+
 `;
+
 
 
 }
@@ -252,12 +399,13 @@ error
 
 
 
-updateLikeButton();
-
 highlightSong();
 
 
+
 }
+
+
 
 
 
@@ -271,6 +419,7 @@ highlightSong();
 function playPause(){
 
 
+
 if(!audio.src){
 
 
@@ -287,14 +436,19 @@ return;
 if(audio.paused){
 
 
+
 audio.play();
 
 
-playBtn.innerHTML=
+
+playBtn.innerHTML =
 
 `
+
 <i class="fa-solid fa-pause"></i>
+
 `;
+
 
 
 }
@@ -305,17 +459,24 @@ else{
 audio.pause();
 
 
-playBtn.innerHTML=
+
+playBtn.innerHTML =
 
 `
+
 <i class="fa-solid fa-play"></i>
+
 `;
 
 
+
 }
 
 
+
 }
+
+
 
 
 
@@ -329,22 +490,27 @@ playBtn.innerHTML=
 function next(){
 
 
+
 current++;
 
 
-if(current>=songs.length){
+
+if(current >= songs.length){
 
 
-current=0;
+current = 0;
 
 
 }
+
 
 
 playSong(current);
 
 
+
 }
+
 
 
 
@@ -359,21 +525,25 @@ playSong(current);
 function previous(){
 
 
+
 current--;
 
 
-if(current<0){
+
+if(current < 0){
 
 
-current=songs.length-1;
+current = songs.length-1;
 
 
 }
+
 
 
 playSong(current);
 
 
+
 }
 
 
@@ -381,7 +551,11 @@ playSong(current);
 
 
 
+
+// =========================
 // AUTO NEXT
+// =========================
+
 
 audio.onended=function(){
 
@@ -394,568 +568,14 @@ next();
 
 
 
-// =========================
-// LOAD SONG CARDS
-// =========================
-
-
-function loadSongs(){
-
-
-songBox.innerHTML="";
-
-
-songs.forEach((song,index)=>{
-
-
-songBox.innerHTML += `
-
-
-<div class="card"
-data-index="${index}"
-onclick="playSong(${index})">
-
-
-<img loading="lazy" src="${song.img}" alt="${song.name}">
-
-
-<h3>${song.name}</h3>
-
-<p>${song.artist}</p>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-loadSongs();
-
-
-
-
-
 
 
 // =========================
-// PLAY SONG
-// =========================
-
-
-async function playSong(index){
-
-
-current=index;
-
-
-let song=songs[index];
-
-
-audio.src=song.file;
-
-
-title.innerText=song.name;
-
-artist.innerText=song.artist;
-
-cover.src=song.img;
-
-
-
-try{
-
-await audio.play();
-
-
-playBtn.innerHTML=
-`
-<i class="fa-solid fa-pause"></i>
-`;
-
-
-}
-
-catch(error){
-
-console.log("Play error:",error);
-
-}
-
-
-
-updateLikeButton();
-
-highlightSong();
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// PLAY / PAUSE
-// =========================
-
-
-function playPause(){
-
-
-if(!audio.src){
-
-playSong(0);
-
-return;
-
-}
-
-
-
-if(audio.paused){
-
-
-audio.play();
-
-
-playBtn.innerHTML=
-`
-<i class="fa-solid fa-pause"></i>
-`;
-
-
-}
-
-else{
-
-
-audio.pause();
-
-
-playBtn.innerHTML=
-`
-<i class="fa-solid fa-play"></i>
-`;
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// NEXT
-// =========================
-
-
-function next(){
-
-
-current++;
-
-
-if(current>=songs.length){
-
-current=0;
-
-}
-
-
-playSong(current);
-
-
-}
-
-
-
-
-
-
-
-// =========================
-// PREVIOUS
-// =========================
-
-
-function previous(){
-
-
-current--;
-
-
-if(current<0){
-
-current=songs.length-1;
-
-}
-
-
-playSong(current);
-
-
-}
-
-
-
-
-
-
-
-audio.onended=function(){
-
-next();
-
-};
-
-
-
-
-
-
-
-
-
-// =========================
-// PROGRESS
-// =========================
-
-
-audio.ontimeupdate=function(){
-
-
-if(audio.duration){
-
-
-progress.value=
-(audio.currentTime/audio.duration)*100;
-
-
-currentTime.innerText=
-formatTime(audio.currentTime);
-
-
-duration.innerText=
-formatTime(audio.duration);
-
-
-
-}
-
-
-};
-
-
-
-
-
-progress.oninput=function(){
-
-
-if(audio.duration){
-
-
-audio.currentTime=
-(progress.value/100)
-*
-audio.duration;
-
-
-}
-
-
-};
-
-
-
-
-
-
-
-
-// =========================
-// FORMAT TIME
-// =========================
-
-
-function formatTime(time){
-
-
-let min=Math.floor(time/60);
-
-
-let sec=Math.floor(time%60);
-
-
-
-if(sec<10){
-
-sec="0"+sec;
-
-}
-
-
-
-return `${min}:${sec}`;
-
-
-}
-
-
-
-
-
-
-
-// =========================
-// VOLUME
-// =========================
-
-
-volume.oninput=function(){
-
-
-audio.volume=Number(volume.value);
-
-
-};
-
-
-
-
-
-
-
-// =========================
-// SEARCH
-// =========================
-
-
-function searchSongs(){
-
-
-let text=
-document.getElementById("search")
-.value
-.toLowerCase();
-
-
-
-document.querySelectorAll(".card")
-.forEach(card=>{
-
-
-let value=
-card.innerText.toLowerCase();
-
-
-
-card.style.display=
-value.includes(text)
-?
-"block"
-:
-"none";
-
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-// =========================
-// LIKE SYSTEM
-// =========================
-
-
-function like(){
-
-
-
-let liked=
-JSON.parse(localStorage.getItem("liked"))
-||
-[];
-
-
-
-
-if(liked.includes(current)){
-
-
-liked=liked.filter(
-item=>item!==current
-);
-
-
-}
-
-else{
-
-
-liked.push(current);
-
-
-}
-
-
-
-localStorage.setItem(
-"liked",
-JSON.stringify(liked)
-);
-
-
-
-updateLikeButton();
-
-
-}
-
-
-
-
-
-
-
-
-function updateLikeButton(){
-
-
-let liked=
-JSON.parse(localStorage.getItem("liked"))
-||
-[];
-
-
-
-
-if(liked.includes(current)){
-
-
-likeBtn.innerHTML=
-`
-<i class="fas fa-heart"></i>
-`;
-
-
-}
-
-else{
-
-
-likeBtn.innerHTML=
-`
-<i class="far fa-heart"></i>
-`;
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// SHOW LIKED
-// =========================
-
-
-function showLiked(){
-
-
-let liked=
-JSON.parse(localStorage.getItem("liked"))
-||
-[];
-
-
-
-songBox.innerHTML="";
-
-
-
-songs.forEach((song,index)=>{
-
-
-if(liked.includes(index)){
-
-
-
-songBox.innerHTML+=`
-
-
-<div class="card"
-onclick="playSong(${index})">
-
-
-<img src="${song.img}">
-
-
-<h3>${song.name}</h3>
-
-
-<p>${song.artist}</p>
-
-
-</div>
-
-
-`;
-
-
-}
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// PLAYLIST LOAD
+// PLAYLIST
 // =========================
 
 
 function loadPlaylist(){
-
 
 
 playlistBox.innerHTML="";
@@ -965,13 +585,16 @@ playlistBox.innerHTML="";
 playlist.forEach((list,index)=>{
 
 
-playlistBox.innerHTML+=`
+playlistBox.innerHTML += `
+
 
 <div class="card"
+
 onclick="openPlaylist(${index})">
 
 
 <h3>${list.name}</h3>
+
 
 <p>${list.songs.length} Songs</p>
 
@@ -981,6 +604,8 @@ onclick="openPlaylist(${index})">
 
 `;
 
+
+
 });
 
 
@@ -988,17 +613,10 @@ onclick="openPlaylist(${index})">
 
 
 
-loadPlaylist();
-
-
-
-
-
-
-
 
 
 function openPlaylist(index){
+
 
 
 songBox.innerHTML="";
@@ -1011,9 +629,12 @@ playlist[index].songs.forEach(songIndex=>{
 let song=songs[songIndex];
 
 
-songBox.innerHTML+=`
+
+songBox.innerHTML += `
+
 
 <div class="card"
+
 onclick="playSong(${songIndex})">
 
 
@@ -1031,7 +652,10 @@ onclick="playSong(${songIndex})">
 
 `;
 
+
+
 });
+
 
 
 }
@@ -1050,6 +674,7 @@ onclick="playSong(${songIndex})">
 function highlightSong(){
 
 
+
 document
 .querySelectorAll(".card")
 .forEach(card=>{
@@ -1059,6 +684,7 @@ card.classList.remove("active");
 
 
 });
+
 
 
 
@@ -1080,94 +706,3 @@ card.classList.add("active");
 
 
 }
-
-
-
-
-
-
-
-
-// =========================
-// SEARCH BUTTON FOCUS
-// =========================
-
-
-function focusSearch(){
-
-
-document
-.getElementById("search")
-.focus();
-
-
-}
-
-
-
-
-
-
-
-
-// =========================
-// KEYBOARD CONTROL
-// =========================
-
-
-document.addEventListener(
-"keydown",
-(e)=>{
-
-
-if(e.code==="Space"){
-
-
-e.preventDefault();
-
-playPause();
-
-
-}
-
-
-
-if(e.code==="ArrowRight"){
-
-next();
-
-}
-
-
-
-if(e.code==="ArrowLeft"){
-
-previous();
-
-}
-
-
-
-});
-
-
-
-
-
-
-
-
-// =========================
-// AUDIO ERROR
-// =========================
-
-
-audio.onerror=function(){
-
-
-alert(
-"Audio file not found. Check songs folder path."
-);
-
-
-};
