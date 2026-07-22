@@ -706,3 +706,479 @@ card.classList.add("active");
 
 
 }
+// =========================
+// PROGRESS BAR
+// =========================
+
+const progress = document.getElementById("progress");
+
+const currentTime = document.getElementById("currentTime");
+
+const duration = document.getElementById("duration");
+
+
+
+audio.ontimeupdate = function(){
+
+
+if(audio.duration){
+
+
+progress.value =
+
+(audio.currentTime / audio.duration) * 100;
+
+
+
+currentTime.innerText =
+
+formatTime(audio.currentTime);
+
+
+
+duration.innerText =
+
+formatTime(audio.duration);
+
+
+
+}
+
+
+
+};
+
+
+
+
+
+progress.oninput=function(){
+
+
+if(audio.duration){
+
+
+audio.currentTime =
+
+(progress.value / 100) *
+
+audio.duration;
+
+
+}
+
+
+};
+
+
+
+
+
+
+
+// =========================
+// TIME FORMAT
+// =========================
+
+function formatTime(time){
+
+
+let min = Math.floor(time / 60);
+
+
+let sec = Math.floor(time % 60);
+
+
+
+if(sec < 10){
+
+sec = "0" + sec;
+
+}
+
+
+
+return `${min}:${sec}`;
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// VOLUME
+// =========================
+
+const volume = document.getElementById("volume");
+
+
+
+volume.oninput=function(){
+
+
+audio.volume = Number(volume.value);
+
+
+};
+
+
+
+
+
+
+
+
+// =========================
+// SEARCH
+// =========================
+
+function searchSongs(){
+
+
+let text =
+
+document.getElementById("search")
+
+.value
+
+.toLowerCase();
+
+
+
+
+document
+
+.querySelectorAll("#songs .card")
+
+.forEach(card=>{
+
+
+let name =
+
+card.innerText.toLowerCase();
+
+
+
+if(name.includes(text)){
+
+
+card.style.display="block";
+
+
+}
+
+else{
+
+
+card.style.display="none";
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// LIKE SYSTEM
+// =========================
+
+const likeBtn = document.getElementById("likeBtn");
+
+
+
+
+
+function like(){
+
+
+let liked =
+
+JSON.parse(
+
+localStorage.getItem("liked")
+
+)
+
+||
+
+[];
+
+
+
+
+
+if(liked.includes(current)){
+
+
+
+liked = liked.filter(
+
+id=>id!==current
+
+);
+
+
+
+}
+
+else{
+
+
+liked.push(current);
+
+
+}
+
+
+
+
+localStorage.setItem(
+
+"liked",
+
+JSON.stringify(liked)
+
+);
+
+
+
+updateLikeButton();
+
+
+
+}
+
+
+
+
+
+
+
+
+function updateLikeButton(){
+
+
+
+let liked =
+
+JSON.parse(
+
+localStorage.getItem("liked")
+
+)
+
+||
+
+[];
+
+
+
+
+
+if(liked.includes(current)){
+
+
+
+likeBtn.innerHTML =
+
+`
+
+<i class="fas fa-heart"></i>
+
+`;
+
+
+
+}
+
+else{
+
+
+likeBtn.innerHTML =
+
+`
+
+<i class="far fa-heart"></i>
+
+`;
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =========================
+// SHOW LIKED SONGS
+// =========================
+
+function showLiked(){
+
+
+let liked =
+
+JSON.parse(
+
+localStorage.getItem("liked")
+
+)
+
+||
+
+[];
+
+
+
+
+songBox.innerHTML="";
+
+
+
+
+liked.forEach(index=>{
+
+
+let song=songs[index];
+
+
+
+songBox.innerHTML +=`
+
+
+
+<div class="card"
+
+onclick="playSong(${index})">
+
+
+
+<img src="${song.img}">
+
+
+
+<h3>${song.name}</h3>
+
+
+
+<p>${song.artist}</p>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+// =========================
+// KEYBOARD CONTROL
+// =========================
+
+
+document.addEventListener(
+
+"keydown",
+
+(e)=>{
+
+
+if(e.code==="Space"){
+
+
+e.preventDefault();
+
+
+playPause();
+
+
+}
+
+
+
+if(e.code==="ArrowRight"){
+
+
+next();
+
+
+}
+
+
+
+if(e.code==="ArrowLeft"){
+
+
+previous();
+
+
+}
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+// =========================
+// AUDIO ERROR
+// =========================
+
+
+audio.onerror=function(){
+
+
+alert(
+
+"Song file error. Check GitHub path"
+
+);
+
+
+};
