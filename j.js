@@ -133,7 +133,8 @@ async function getSongDetails(songName){
 
 const githubAPI =
 
-"https://api.github.com/repos/master2020k/spotifymode/contents/songs";
+"https://api.github.com/repos/master2020k/listening-hub-main/contents/songs
+";
 
 
 
