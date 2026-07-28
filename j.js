@@ -133,7 +133,7 @@ async function getSongDetails(songName){
 
 const githubAPI =
 
-"https://api.github.com/repos/master2020k/listening-hub-main/contents/songs
+"https://api.github.com/repos/master2020k/listening-hub-main/contents/songs/songs1
 ";
 
 
